@@ -80,16 +80,18 @@ void sqlite3_open_(Dart_NativeArguments arguments) {
 
 void sqlite3_exec_(Dart_NativeArguments arguments) {
 	Dart_EnterScope();
+	Dart_Handle result;
+	char *errorMessage = NULL;
+
 	sqlite3* db = getSqliteHandle(arguments);
 	const char *sql = getString(arguments, 1);
-	char *errmsg;
 
 	//TODO
 
-	int rc = sqlite3_exec(db, sql, Sqlite3Callback, 0, &errmsg);
+	int rc = sqlite3_exec(db, sql, Sqlite3Callback, 0, &errorMessage);
 	if (rc != SQLITE_OK) {
-		fprintf(stderr, "SQL exec error: %s\n", errmsg);
-		sqlite3_free(errmsg);
+		result = createException(errorMessage);
+		sqlite3_free(errorMessage);
 	}
 
 	rc = sqlite3_close(db);
