@@ -24,7 +24,7 @@ ELSE()
 	FILE(GLOB SOURCES src/*.c src/sqlite3/*.c)
 ENDIF()
 
-include_directories( src/sqlite3 ${DART_SDK} )
+include_directories( src src/sqlite3 ${DART_SDK} )
 
 add_library (sqlite3dart_extension SHARED ${SOURCES})
 
