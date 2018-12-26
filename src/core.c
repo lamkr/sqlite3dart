@@ -15,8 +15,13 @@ Dart_Handle handleError(Dart_Handle handle) {
 	return handle;
 }
 
+Dart_Handle createException(const char* message) {
+	Dart_Handle apiError = Dart_NewApiError(message);
+	return Dart_NewUnhandledExceptionError(apiError);
+}
+
 sqlite3* getSqliteHandle(Dart_NativeArguments arguments) {
-	Dart_Handle addressHandle = handleError(Dart_GetNativeArgument(arguments, 0));
+	Dart_Handle addressHandle = Dart_GetNativeArgument(arguments, 0);
 	uint64_t address = 0;
 	handleError(Dart_IntegerToUint64(addressHandle, &address));
 	return (sqlite3*)address;

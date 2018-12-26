@@ -13,9 +13,9 @@
 #define false 0
 #endif
 
-Dart_NativeFunction resolveName(Dart_Handle name, int argc, bool* auto_setup_scope);
-
 Dart_Handle handleError(Dart_Handle handle);
+
+Dart_Handle createException(const char* message);
 
 sqlite3* getSqliteHandle(Dart_NativeArguments arguments);
 
