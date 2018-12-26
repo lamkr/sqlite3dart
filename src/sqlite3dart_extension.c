@@ -1,6 +1,7 @@
-// Copyright (c) 2012, the Dart project authors.  Please see the AUTHORS file
-// for details. All rights reserved. Use of this source code is governed by a
-// BSD-style license that can be found in the LICENSE file.
+// Copyright (c) 2018 Luciano Rodrigues (Brodi).
+// Please see the AUTHORS file for details. 
+// All rights reserved. Use of this source code is governed by a MIT-style 
+// license that can be found in the LICENSE file.
 #include <string.h>
 #include <stdlib.h>
 #include <time.h> 
@@ -8,6 +9,14 @@
 #include "sqlite3.h"
 #include "include/dart_api.h"
 #include "include/dart_native_api.h"
+
+#ifndef true
+#define true 1
+#endif
+
+#ifndef false
+#define false 0
+#endif
 
 Dart_NativeFunction ResolveName(Dart_Handle name,
 	int argc,
