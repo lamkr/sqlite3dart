@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include "sqlite3dart_core.h"
 
-FunctionNode* populateSyncFunctionsList(FunctionNode **node);
+extern Function syncFunctionsList[];
 
 void sqlite3_threadsafe_(Dart_NativeArguments arguments);
 

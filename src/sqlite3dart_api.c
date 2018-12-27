@@ -8,6 +8,15 @@
 #include <stdio.h>
 #include "sqlite3dart_api.h"
 
+Function syncFunctionsList[] = {
+	{ "sqlite3_threadsafe_", sqlite3_threadsafe_},
+	{ "sqlite3_libversion_number_", sqlite3_libversion_number_ },
+	{ "sqlite3_close_", sqlite3_close_ },
+	{ "sqlite3_open_", sqlite3_open_ },
+	{ "sqlite3_exec_", sqlite3_exec_ },
+	{ NULL, NULL }
+};
+
 void sqlite3_threadsafe_(Dart_NativeArguments arguments) {
 	Dart_EnterScope();
 	bool isThreadSafe = sqlite3_threadsafe() != 0;
@@ -79,20 +88,3 @@ void sqlite3_exec_(Dart_NativeArguments arguments) {
 	Dart_ExitScope();
 }
 
-FunctionNode* populateSyncFunctionsList(FunctionNode** node) {
-	*node = new FunctionNode(new Function("sqlite3_threadsafe_", sqlite3_threadsafe_));
-
-	FunctionNode *last = *node;
-	last->next = new FunctionNode(new Function("sqlite3_libversion_number_", sqlite3_libversion_number_));
-	
-	last = last->next;
-	last->next = new FunctionNode(new Function("sqlite3_close_", sqlite3_close_));
-
-	last = last->next;
-	last->next = new FunctionNode(new Function("sqlite3_open_", sqlite3_open_));
-
-	last = last->next;
-	last->next = new FunctionNode(new Function("sqlite3_exec_", sqlite3_exec_));
-
-	return last;
-}

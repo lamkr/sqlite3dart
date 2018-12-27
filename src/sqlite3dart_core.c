@@ -42,7 +42,7 @@ int Sqlite3Callback(pointer a_param, int argc, cstring *argv, cstring *column) {
 }
 
 bool isEmptyOrNull(const cstring str) {
-	return str == null || strlen(str) == 0;
+	return str == NULL|| strlen(str) == 0;
 }
 
 bool isNotEmptyOrNull(const cstring str) {

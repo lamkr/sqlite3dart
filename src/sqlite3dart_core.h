@@ -30,11 +30,6 @@ typedef struct TFunction {
 	Dart_NativeFunction nativeFunction;
 } Function;
 
-typedef struct {
-	Function* function;
-	Function* next;
-} FunctionNode;
-
 Dart_Handle handleError(Dart_Handle handle);
 
 Dart_Handle createException(const cstring message);

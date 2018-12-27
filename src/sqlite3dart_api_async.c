@@ -7,14 +7,20 @@
 #include <time.h> 
 #include <stdio.h>
 #include "sqlite3dart_api.h"
+#include "sqlite3dart_api_async.h"
 #include "include/dart_api.h"
 #include "include/dart_native_api.h"
+
+Function asyncFunctionsList[] = {
+	{ "sqlite3_open_async_", sqlite3_open_async_},
+	{ NULL, NULL }
+};
 
 void sqlite3_open_async( Dart_Port destPortId, Dart_Port replyPortId, Dart_CObject* message ) {
 	if( message->type != Dart_CObject_kString || isEmptyOrNull(message->value.as_string) )
 		;//TODO ERRO
 
-	const cstring filepath = message->value.as_string;
+	const cstring filename = message->value.as_string;
 	Dart_CObject result;
 	sqlite3 *db = NULL;
 
@@ -46,7 +52,7 @@ void sqlite3_open_async( Dart_Port destPortId, Dart_Port replyPortId, Dart_CObje
 void sqlite3_open_async_(Dart_NativeArguments arguments) {
 	Dart_SetReturnValue(arguments, Dart_Null());
 	Dart_Port servicePort = Dart_NewNativePort("sqlite3_open_async", sqlite3_open_async, true);
-	if (servicePort != kIllegalPort) {
+	if (servicePort != -1) { // TODO kIllegalPort) {
 		Dart_Handle sendPort = Dart_NewSendPort(servicePort);
 		Dart_SetReturnValue(arguments, sendPort);
 	}
@@ -54,7 +60,7 @@ void sqlite3_open_async_(Dart_NativeArguments arguments) {
 
 Dart_CObject newSqlite3Handler(sqlite3* db) {
 	Dart_CObject sqlite3handler;
-	result.type = Dart_CObject_kTypedData;
-	result.value.as_typed_data = NULL; // ? TODO
-	return result;
+	sqlite3handler.type = Dart_CObject_kTypedData;
+	//sqlite3handler.value.as_typed_data = NULL; // ? TODO
+	return sqlite3handler;
 }
