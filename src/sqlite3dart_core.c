@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <time.h> 
 #include <stdio.h>
-#include "core.h"
+#include "sqlite3dart_core.h"
 
 Dart_Handle handleError(Dart_Handle handle) {
 	if (Dart_IsError(handle)) {
@@ -15,7 +15,7 @@ Dart_Handle handleError(Dart_Handle handle) {
 	return handle;
 }
 
-Dart_Handle createException(const char* message) {
+Dart_Handle createException(const cstring message) {
 	Dart_Handle apiError = Dart_NewApiError(message);
 	return Dart_NewUnhandledExceptionError(apiError);
 }
@@ -27,16 +27,24 @@ sqlite3* getSqliteHandle(Dart_NativeArguments arguments) {
 	return (sqlite3*)address;
 }
 
-const char* getString(Dart_NativeArguments arguments, int index) {
+const cstring getCString(Dart_NativeArguments arguments, int index) {
 	Dart_Handle stringHandle = handleError(Dart_GetNativeArgument(arguments, index));
-	char* str = NULL;
+	cstring str = NULL;
 	handleError(Dart_StringToCString(stringHandle, &str));
-	return (const char*)str;
+	return (const cstring) str;
 }
 
-int Sqlite3Callback(void *a_param, int argc, char **argv, char **column) {
+int Sqlite3Callback(pointer a_param, int argc, cstring *argv, cstring *column) {
 	for (int i = 0; i < argc; i++)
 		printf("%s,\t", argv[i]);
 	printf("\n");
 	return 0;
+}
+
+bool isEmptyOrNull(const cstring str) {
+	return str == null || strlen(str) == 0;
+}
+
+bool isNotEmptyOrNull(const cstring str) {
+	return !isEmptyOrNull(str);
 }
