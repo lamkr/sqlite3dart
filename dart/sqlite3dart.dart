@@ -1,7 +1,11 @@
 library sqlite3dart;
 
-import 'dart-ext:C:/projects/lamkr/sqlite3dart/build/Release/sqlite3dart_extension.dll';
+import 'dart:async';
+import 'dart:isolate';
+
+//import 'dart-ext:C:/projects/lamkr/sqlite3dart/build/Release/sqlite3dart_extension.dll';
 //import 'dart-ext:../build/Release/sqlite3dart_extension';
+import 'dart-ext:sqlite3dart_extension';
 
 void throwError() native "throwError_";
 int sqlite3_threadsafe() native "sqlite3_threadsafe_";
