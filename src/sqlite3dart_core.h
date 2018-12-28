@@ -32,11 +32,10 @@ typedef struct TFunction {
 
 typedef void(*NativeFunction)(Dart_CObject* message, Dart_CObject* result);
 
-typedef struct TFunction2 {
+typedef struct TWrapperFunction {
 	cstring name;
 	NativeFunction nativeFunction;
-} Function2;
-
+} WrapperFunction;
 
 Dart_Handle handleError(Dart_Handle handle);
 

@@ -1,12 +1,25 @@
+import "package:test/test.dart";
 import 'dart:typed_data';
 import 'dart:async';
 import 'dart:isolate';
-import 'sqlite3dart.dart';
+import 'package:lamkr/sqlite3dart/sqlite3dart.dart';
 
 void main() async
 {
-	int db = await sqlite3_open('./banco.db');
-	print('db=$db');
+    setUpAll(() {
+	});
+
+	group("some_Group_Name", () 
+	{	
+	   test("sqlite_open", () async { 
+	     int handler = await sqlite3_open('./database.db')
+		 expect(handler, isNotNUll); 
+	   });  
+
+	   test("sqlite_open with invalid path", () { 
+		 expect(() async => await sqlite3_open('./database.db'), throwsA(new isInstanceOf<SqliteException>()));
+	   }); 
+	})
 }
 
 Future run2() async {

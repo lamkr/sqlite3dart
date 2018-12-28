@@ -11,6 +11,7 @@
 #include "include/dart_api.h"
 #include "include/dart_native_api.h"
 
+//DEPRECATED
 Function asyncFunctionsList[] = {
 //	{ "sqlite3_close_port_", sqlite3_close_port_},
 	{ "sqlite3_open_async_", sqlite3_open_async_},

@@ -1,4 +1,8 @@
 .vs/
+dart/.dart_tool/
+dart/.packages
+dart/sqlite3dart_extension.dll
+dart/pubspec.lock
 build/
 CMakeCache.txt
 CMakeFiles

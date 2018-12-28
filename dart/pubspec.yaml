@@ -1,0 +1,15 @@
+name: sqlite3dart
+description: Dart library to use SQLite3 native functions.
+version: 0.0.1+1
+homepage: https://github.com/lamkr/sqlite3dart
+author: Luciano Rodrigues (Brodi) <lamkrodrigues@gmail.com>
+license: MIT
+copyright: 2018 (c) Luciano Rodrigues (Brodi) <lamkrodrigues@gmail.com>
+
+environment:
+
+dependencies:
+
+dev_dependencies:
+  test: ^1.5.1+1
+

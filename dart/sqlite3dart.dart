@@ -1,4 +1,4 @@
-library sqlite3dart;
+library lamkr.sqlite3dart;
 
 import 'dart:async';
 import 'dart:isolate';
@@ -22,7 +22,7 @@ Future<int> sqlite3_open(String path) {
   var replyPort = new RawReceivePort();
   var args = new List(3);
   args[0] = replyPort.sendPort;
-  args[1] = 'sqlite3_open';
+  args[1] = '_sqlite3_open';
   args[2] = path;
   get_receive_port().send(args);
   replyPort.handler = (result) {
