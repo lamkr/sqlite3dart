@@ -11,10 +11,26 @@
 #include "include/dart_api.h"
 #include "include/dart_native_api.h"
 
+#define PORT_NAME	"lamkr.sqlite3dart"
+
 Function asyncFunctionsList[] = {
+	{ "sqlite3_open_port_", sqlite3_open_port_},
+//	{ "sqlite3_close_port_", sqlite3_close_port_},
 	{ "sqlite3_open_async_", sqlite3_open_async_},
 	{ NULL, NULL }
 };
+
+void sqlite3_open_port_(Dart_NativeArguments arguments) {
+	Dart_EnterScope();
+	Dart_SetReturnValue(arguments, Dart_Null());
+	Dart_Port servicePort = Dart_NewNativePort(PORT_NAME, sqlite3_open_port, true);
+	printf("sqlite3_open_async_: destPortId=%lld\n", servicePort);
+	if (servicePort != ILLEGAL_PORT) {
+		Dart_Handle sendPort = Dart_NewSendPort(servicePort);
+		Dart_SetReturnValue(arguments, sendPort);
+	}
+	Dart_ExitScope();
+}
 
 void sqlite3_open_async( Dart_Port destPortId, Dart_CObject* message ) {
 	printf("sqlite3_open_async: destPortId=%lld\n", destPortId);
