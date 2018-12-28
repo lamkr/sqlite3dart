@@ -30,6 +30,14 @@ typedef struct TFunction {
 	Dart_NativeFunction nativeFunction;
 } Function;
 
+typedef void(*NativeFunction)(Dart_CObject* message, Dart_CObject* result);
+
+typedef struct TFunction2 {
+	cstring name;
+	NativeFunction nativeFunction;
+} Function2;
+
+
 Dart_Handle handleError(Dart_Handle handle);
 
 Dart_Handle createException(const cstring message);

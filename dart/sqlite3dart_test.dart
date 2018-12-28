@@ -5,8 +5,23 @@ import 'sqlite3dart.dart';
 
 void main() async
 {
-	var db = await run();
+	int db = await sqlite3_open('./banco.db');
 	print('db=$db');
+}
+
+Future run2() async {
+  var completer = new Completer();
+  var replyPort = new RawReceivePort();
+  var args = new List(3);
+  args[0] = replyPort.sendPort;
+  args[1] = 'oi';
+  args[2] = 'Luciano';
+  _servicePort.send(args);
+  replyPort.handler = (result) {
+	print('(result)=$result ${result.runtimeType}');
+    replyPort.close();
+  };
+  return completer.future;
 }
 
 SendPort _port;
@@ -36,19 +51,8 @@ Future run() async {
 
 SendPort get _servicePort {
   if (_port == null) {
-    _port = sqlite3_open_async();
+    _port = get_receive_port();
   }
   return _port;
 }
 
-class Sqlite3Exception 
-implements Exception 
-{
-	final String message;
-	
-	Sqlite3Exception(this.message);
-	
-	String toString() {
-		return '$runtimeType: $message';
-	}
-}

@@ -1,6 +1,7 @@
 @echo off
 set arg1=%1
-set VSPATH="C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin"
+rem home set VSPATH="C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin"
+set VSPATH="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin"
 set SolutionFolder=.\build
 set SolutionDir=.\build
 if "%~1"=="rm" rm -rf build

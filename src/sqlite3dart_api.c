@@ -8,12 +8,15 @@
 #include <stdio.h>
 #include "sqlite3dart_api.h"
 
+void get_receive_port(Dart_NativeArguments arguments);
+
 Function syncFunctionsList[] = {
 	{ "sqlite3_threadsafe_", sqlite3_threadsafe_},
 	{ "sqlite3_libversion_number_", sqlite3_libversion_number_ },
 	{ "sqlite3_close_", sqlite3_close_ },
 	{ "sqlite3_open_", sqlite3_open_ },
 	{ "sqlite3_exec_", sqlite3_exec_ },
+	{ "get_receive_port", get_receive_port },
 	{ NULL, NULL }
 };
 

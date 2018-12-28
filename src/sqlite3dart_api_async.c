@@ -11,26 +11,11 @@
 #include "include/dart_api.h"
 #include "include/dart_native_api.h"
 
-#define PORT_NAME	"lamkr.sqlite3dart"
-
 Function asyncFunctionsList[] = {
-	{ "sqlite3_open_port_", sqlite3_open_port_},
 //	{ "sqlite3_close_port_", sqlite3_close_port_},
 	{ "sqlite3_open_async_", sqlite3_open_async_},
 	{ NULL, NULL }
 };
-
-void sqlite3_open_port_(Dart_NativeArguments arguments) {
-	Dart_EnterScope();
-	Dart_SetReturnValue(arguments, Dart_Null());
-	Dart_Port servicePort = Dart_NewNativePort(PORT_NAME, sqlite3_open_port, true);
-	printf("sqlite3_open_async_: destPortId=%lld\n", servicePort);
-	if (servicePort != ILLEGAL_PORT) {
-		Dart_Handle sendPort = Dart_NewSendPort(servicePort);
-		Dart_SetReturnValue(arguments, sendPort);
-	}
-	Dart_ExitScope();
-}
 
 void sqlite3_open_async( Dart_Port destPortId, Dart_CObject* message ) {
 	printf("sqlite3_open_async: destPortId=%lld\n", destPortId);
@@ -71,7 +56,7 @@ void sqlite3_open_async( Dart_Port destPortId, Dart_CObject* message ) {
 		const char* errmsg = sqlite3_errmsg(db);
 		result.type = Dart_CObject_kTypedData;
 		result.value.as_typed_data.type = Dart_TypedData_kUint8;
-		result.value.as_typed_data.values = errmsg;
+		result.value.as_typed_data.values = (uint8_t*) errmsg;
 		result.value.as_typed_data.length = strlen(errmsg);
 		printf("6 err: %s\n", errmsg);
 		sqlite3_close(db);
