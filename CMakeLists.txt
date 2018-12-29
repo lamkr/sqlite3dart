@@ -19,9 +19,9 @@ set(IS_DART_SDK_X64 TRUE)
 
 # Add source to this project's executable.
 IF(WIN32)
-	FILE(GLOB SOURCES src/*.c src/sqlite3/*.c src/windows/*.c)
+	FILE(GLOB SOURCES src/*.c* src/sqlite3/*.c src/windows/*.c)
 ELSE()
-	FILE(GLOB SOURCES src/*.c src/sqlite3/*.c)
+	FILE(GLOB SOURCES src/*.c* src/sqlite3/*.c)
 ENDIF()
 
 include_directories( src src/sqlite3 ${DART_SDK} )

@@ -14,7 +14,7 @@ import 'SqliteException.dart';
 
 ///
 /// Open a new database connection.
-/// {@see https://sqlite.org/c3ref/open.html}
+/// See [https://sqlite.org/c3ref/open.html]
 ///
 Future<int> sqlite3_open(String filename) {
   var completer = new Completer<int>();
@@ -26,11 +26,34 @@ Future<int> sqlite3_open(String filename) {
   get_receive_port().send(args);
   replyPort.handler = (result) {
     replyPort.close();
-	  if( result is String ) {
+    if( result is String ) {
       completer.completeError(new SqliteException(result));
     }
-	  else
-	    completer.complete(result);
+    else
+      completer.complete(result);
+  };
+  return completer.future;
+}
+
+///
+/// Close a database connection.
+/// See [https://sqlite.org/c3ref/close.html]
+///
+Future<void> sqlite3_close(int handler) {
+  var completer = new Completer<int>();
+  var replyPort = new RawReceivePort();
+  var args = new List(3);
+  args[0] = replyPort.sendPort;
+  args[1] = 'sqlite3_close_wrapper';
+  args[2] = handler;
+  get_receive_port().send(args);
+  replyPort.handler = (result) {
+    replyPort.close();
+    if( result is String ) {
+      completer.completeError(new SqliteException(result));
+    }
+    else
+      completer.complete(result);
   };
   return completer.future;
 }

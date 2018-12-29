@@ -14,16 +14,33 @@ import 'package:sqlite3dart/sqlite3dart.dart';
 
 void main() async
 {
-  test("sqlite_open", () async {
+  /*test("sqlite_open", () async {
     int handler = await sqlite3_open('./database.db');
     assert(handler != null);
     print('handler=$handler');
+    await sqlite3_close(handler);
   });
 
   test("sqlite_open with invalid path", () async {
+    int handler = 0;
     try {
-      await sqlite3_open('stranger path! ./database.db');
+      handler = await sqlite3_open('??stranger path?? ./database.db');
+      await sqlite3_close(handler);
       assert(true==false, "Would be throwed SqliteException");
+    }
+    catch(e)
+    {}
+  } );*/
+
+  await test("sqlite_close", () async {
+    int handler = await sqlite3_open('./database.db');
+    await sqlite3_close(handler);
+  } );
+
+  await test("sqlite_close with invalid handler", () async {
+    int invalidHandler = -1;
+    try {
+      await sqlite3_close(invalidHandler);
     }
     catch(e)
     {}

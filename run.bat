@@ -14,12 +14,12 @@ REM cd build
 echo ERRORLEVEL=%ERRORLEVEL% %VSPATH%\msbuild .\build\sqlite3dart_extension.sln /p:Configuration=Release /p:Platform=x64
 if %ERRORLEVEL% neq 0 goto erro
 REM cd ..
-copy /Y build\Release\sqlite3dart_extension.dll .\dart
+copy /Y build\Release\sqlite3dart_extension.dll .\sqlite3dart\example
 :RUN_DART
-	cd dart 
-	dart sqlite3dart_test.dart
+	cd .\sqlite3dart\example
+	dart -v sqlite3dart_test.dart
 	echo ERRORLEVEL=%ERRORLEVEL% dart
-	cd ..
+	cd ..\..
 	goto fim
 :erro
 	echo # ERRO
