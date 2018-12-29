@@ -7,13 +7,25 @@
 #include <stdlib.h>
 #include <time.h> 
 #include <stdio.h>
-#include <excpt.h>
+#include <setjmp.h>
 #include "sqlite3dart_core.h"
 
 #define TRY do{ jmp_buf ex_buf__; if( !setjmp(ex_buf__) ){
 #define CATCH } else {
 #define ETRY } }while(0)
 #define THROW longjmp(ex_buf__, 1)
+
+const cstring ERR_INVALID_HANDLE = "Invalid database handle.";
+
+bool isInvalidHandle(int64_t address) {
+	int64_t address32 = (int32_t)address;
+	return address32 < 1;
+}
+
+void mountException(Dart_CObject* result, const cstring message) {
+	result->type = Dart_CObject_kString;
+	result->value.as_string = ERR_INVALID_HANDLE;
+}
 
 void sqlite3_open_wrapper(Dart_CObject* message, Dart_CObject* result) {
 	Dart_CObject* param = message->value.as_array.values[2];
@@ -26,46 +38,27 @@ void sqlite3_open_wrapper(Dart_CObject* message, Dart_CObject* result) {
 		result->value.as_int64 = (int64_t) db;
 	}
 	else {
-		result->type = Dart_CObject_kString;
-		result->value.as_string = (const cstring) sqlite3_errmsg(db);
+		mountException(result, (const cstring)sqlite3_errstr(error));
 		sqlite3_close(db);
 	}
 }
 
 void sqlite3_close_wrapper(Dart_CObject* message, Dart_CObject* result) {
 	Dart_CObject* param = message->value.as_array.values[2];
-	printf("sqlite3_close_wrapper: %lld\n", param->value.as_int64);
-	puts("1");
-	sqlite3 *db = (sqlite3 *) param->value.as_int64;
-	int error = 0;
-	/*TRY {
-		puts("2");
-		error = sqlite3_close(db);
-		printf("sqlite3_close_wrapper: error %d\n", error);
+	int64_t address = param->value.as_int64;
+	if (isInvalidHandle(address)) {
+		mountException(result, ERR_INVALID_HANDLE);
+		return;
 	}
-	CATCH {
-		puts("excecao\n");
-		error = 1;
-	}
-	ETRY;*/
-	__try {
-		puts("2");
-		error = sqlite3_close(db);
-		printf("sqlite3_close_wrapper: error %d\n", error);
-	}
-	__except (EXCEPTION_EXECUTE_HANDLER) {
-		puts("excecao\n");
-		error = 1;
-	}
+
+	sqlite3 *db = (sqlite3 *)address;
+	int error = sqlite3_close(db);
 	if (!error) {
 		result->type = Dart_CObject_kNull;
 	}
 	else {
-		result->type = Dart_CObject_kString;
-		result->value.as_string = (const cstring)sqlite3_errstr(error);
+		mountException(result, (const cstring)sqlite3_errstr(error));
 	}
-	puts("fim");
-
 }
 
 const WrapperFunction wrappersFunctionsList[] = {
