@@ -1,29 +1,29 @@
 /// SQLite3 for Dart
 /// Copyright (c) 2018 Luciano Rodrigues (Brodi).
-/// Please see the AUTHORS file for details. 
-/// All rights reserved. Use of this source code is governed by a MIT-style 
+/// Please see the AUTHORS file for details.
+/// All rights reserved. Use of this source code is governed by a MIT-style
 /// license that can be found in the LICENSE file.
 
 import 'dart:typed_data';
 import 'dart:async';
 import 'dart:isolate';
 import "package:test/test.dart";
-import 'package:dart/sqlite3dart.dart';
+import 'package:dart/sqlite3dart_extension.dart';
 
-void main() async
-{
-  setUpAll(() {
-	});
+void main() async {
+  setUpAll(() {});
 
-	group("some_Group_Name", () 
-	{	
-	  test("sqlite_open", () async {
-	    int handler = await sqlite3_open('./database.db')
+  group("SQLite3 for Dart tests", ()
+  {
+    test("sqlite_open", () async {
+      int handler = await sqlite3_open('./database.db');
       expect(handler, isNotNull);
     });
 
     test("sqlite_open with invalid path", () {
-      expect(() async => await sqlite3_open('./database.db'), throwsA(new isInstanceOf<SqliteException>()));
+      expect(() async => await sqlite3_open('./database.db'),
+        //throwsA(new isInstanceOf<SqliteException>()));
+        throwsA(const TypeMatcher<SqliteException>()));
     });
   });
 }
@@ -37,7 +37,7 @@ Future run2() async {
   args[2] = 'Luciano';
   _servicePort.send(args);
   replyPort.handler = (result) {
-	print('(result)=$result ${result.runtimeType}');
+    print('(result)=$result ${result.runtimeType}');
     replyPort.close();
   };
   return completer.future;
@@ -53,15 +53,15 @@ Future run() async {
   args[1] = 'asd asd ./banco.db';
   _servicePort.send(args);
   replyPort.handler = (result) {
-	print('(result)=$result ${result.runtimeType}');
-	if( result is Uint8List ) {
-		throw new Sqlite3Exception(new String.fromCharCodes(result));
-	}
+    print('(result)=$result ${result.runtimeType}');
+    if (result is Uint8List) {
+      throw new SqliteException(new String.fromCharCodes(result));
+    }
     replyPort.close();
     if (result != null) {
       completer.complete(result);
-    } 
-	else {
+    }
+    else {
       completer.completeError(new Exception("Random array creation failed"));
     }
   };
@@ -74,4 +74,3 @@ SendPort get _servicePort {
   }
   return _port;
 }
-
