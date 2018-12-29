@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include "sqlite3dart_core.h"
 
-void _sqlite3_open(Dart_CObject* message, Dart_CObject* result) {
+void sqlite3_open_wrapper(Dart_CObject* message, Dart_CObject* result) {
 	Dart_CObject* param = message->value.as_array.values[2];
 	const cstring filename = param->value.as_string;
 
@@ -26,7 +26,7 @@ void _sqlite3_open(Dart_CObject* message, Dart_CObject* result) {
 }
 
 const WrapperFunction wrappersFunctionsList[] = {
-	{ "_sqlite3_open", _sqlite3_open},
+	{ "sqlite3_open_wrapper", sqlite3_open_wrapper},
 	{ NULL, NULL }
 };
 
