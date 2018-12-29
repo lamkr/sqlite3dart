@@ -17,24 +17,21 @@ import 'SqliteException.dart';
 /// {@see https://sqlite.org/c3ref/open.html}
 ///
 Future<int> sqlite3_open(String filename) {
-  print('1');
   var completer = new Completer<int>();
   var replyPort = new RawReceivePort();
   var args = new List(3);
   args[0] = replyPort.sendPort;
   args[1] = 'sqlite3_open_wrapper';
   args[2] = filename;
-  print('2');
   get_receive_port().send(args);
   replyPort.handler = (result) {
-    print('3');
     replyPort.close();
 	  if( result is String ) {
-      throw new SqliteException(result);
+      completer.completeError(new SqliteException(result));
     }
-	  completer.complete(result);
+	  else
+	    completer.complete(result);
   };
-  print('4');
   return completer.future;
 }
 

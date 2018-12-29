@@ -4,34 +4,34 @@
 /// All rights reserved. Use of this source code is governed by a MIT-style
 /// license that can be found in the LICENSE file.
 
-import 'dart:typed_data';
+/// **ATTENTION**
+///
+/// To run this sample test, execute the command:
+/// $ dart -v sqlite3dart_test.dart
+///
 import 'dart:async';
-import 'dart:isolate';
 import 'package:sqlite3dart/sqlite3dart.dart';
-import 'package:test/test.dart';
 
 void main() async
 {
-  //test("sqlite_open", () async {
-    print('oi s');
+  test("sqlite_open", () async {
     int handler = await sqlite3_open('./database.db');
     assert(handler != null);
     print('handler=$handler');
-  //});
+  });
 
   test("sqlite_open with invalid path", () async {
     try {
-      int handler = await sqlite3_open('stranger path! ./database.db');
-      print('handler=$handler / sem erros');
+      await sqlite3_open('stranger path! ./database.db');
+      assert(true==false, "Would be throwed SqliteException");
     }
-    catch(e) {
-      print(e.toString());
-      assert(e);
-    }
+    catch(e)
+    {}
   } );
 }
 
-void test(String name, Function functionTest ) {
-  functionTest();
+FutureOr test(String name, Function functionTest ) async {
+  await functionTest();
+  print('Test \'$name\' successfully.\n');
 }
 
