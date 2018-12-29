@@ -58,4 +58,30 @@ Future<void> sqlite3_close(int handler) {
   return completer.future;
 }
 
+///
+/// One-step query execution method.
+/// See [https://sqlite.org/c3ref/exec.html]
+///
+Future<SqliteRow> sqlite3_exec(int handler, String sql) {
+  var completer = new Completer<SqliteRow>();
+  var replyPort = new RawReceivePort();
+  var args = new List();
+  args.insert(0, replyPort.sendPort);
+  args.insert(1, 'sqlite3_exec_wrapper');
+  args.insert(2, handler);
+  args.insert(3, sql);
+  get_receive_port().send(args);
+  replyPort.handler = (result) {
+    replyPort.close();
+    if( result is String ) {
+      completer.completeError(new SqliteException(result));
+    }
+    else
+      completer.complete(result);
+  };
+  return completer.future;
+}
 
+
+class SqliteRow
+{}

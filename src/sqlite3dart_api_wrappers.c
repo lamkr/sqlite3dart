@@ -24,7 +24,7 @@ bool isInvalidHandle(int64_t address) {
 
 void mountException(Dart_CObject* result, const cstring message) {
 	result->type = Dart_CObject_kString;
-	result->value.as_string = ERR_INVALID_HANDLE;
+	result->value.as_string = message;
 }
 
 void sqlite3_open_wrapper(Dart_CObject* message, Dart_CObject* result) {
@@ -33,7 +33,7 @@ void sqlite3_open_wrapper(Dart_CObject* message, Dart_CObject* result) {
 
 	sqlite3 *db;
 	int error = sqlite3_open(filename, &db);
-	if (!error) {
+	if (error == SQLITE_OK) {
 		result->type = Dart_CObject_kInt64;
 		result->value.as_int64 = (int64_t) db;
 	}
@@ -53,7 +53,7 @@ void sqlite3_close_wrapper(Dart_CObject* message, Dart_CObject* result) {
 
 	sqlite3 *db = (sqlite3 *)address;
 	int error = sqlite3_close(db);
-	if (!error) {
+	if (error == SQLITE_OK) {
 		result->type = Dart_CObject_kNull;
 	}
 	else {
@@ -61,9 +61,51 @@ void sqlite3_close_wrapper(Dart_CObject* message, Dart_CObject* result) {
 	}
 }
 
+int callback(pointer parameter, int argc, cstring *argv, cstring *column) {
+	Dart_Port replyPortId = *(Dart_Port*) parameter;
+	printf("callback:replyPortId = %lld\n", replyPortId);
+	for (int i = 0; i < argc; i++) {
+		printf("%s = %s,\t", column[i], argv[i]);
+		Dart_CObject result;
+		Dart_PostCObject(replyPortId, &result);
+	}
+	printf("\n");
+	return 0;
+}
+
+void sqlite3_exec_wrapper(Dart_CObject* message, Dart_CObject* result) {
+	Dart_CObject* paramReplyPortId = message->value.as_array.values[0];
+	Dart_Port replyPortId = paramReplyPortId->value.as_send_port.id;
+
+	Dart_CObject* param2 = message->value.as_array.values[2];
+	int64_t address = param2->value.as_int64;
+	if (isInvalidHandle(address)) {
+		mountException(result, ERR_INVALID_HANDLE);
+		return;
+	}
+
+	sqlite3 *db = (sqlite3 *)address;
+
+	Dart_CObject* param3 = message->value.as_array.values[3];
+	const cstring sql = (const cstring)param3->value.as_string;
+	puts(sql);
+
+	const cstring zErrMsg = NULL;
+	int error = sqlite3_exec(db, sql, callback, &replyPortId, &zErrMsg);
+	if (error == SQLITE_OK) {
+		result->type = Dart_CObject_kNull;
+	}
+	else {
+		puts(zErrMsg);
+		mountException(result, zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+}
+
 const WrapperFunction wrappersFunctionsList[] = {
 	{ "sqlite3_open_wrapper", sqlite3_open_wrapper},
 	{ "sqlite3_close_wrapper", sqlite3_close_wrapper},
+	{ "sqlite3_exec_wrapper", sqlite3_exec_wrapper},
 	{ NULL, NULL }
 };
 

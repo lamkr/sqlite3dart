@@ -14,14 +14,14 @@ import 'package:sqlite3dart/sqlite3dart.dart';
 
 void main() async
 {
-  /*test("sqlite_open", () async {
+  /*await test("sqlite_open", () async {
     int handler = await sqlite3_open('./database.db');
     assert(handler != null);
     print('handler=$handler');
     await sqlite3_close(handler);
   });
 
-  test("sqlite_open with invalid path", () async {
+  await test("sqlite_open with invalid path", () async {
     int handler = 0;
     try {
       handler = await sqlite3_open('??stranger path?? ./database.db');
@@ -30,7 +30,7 @@ void main() async
     }
     catch(e)
     {}
-  } );*/
+  } );
 
   await test("sqlite_close", () async {
     int handler = await sqlite3_open('./database.db');
@@ -44,7 +44,19 @@ void main() async
     }
     catch(e)
     {}
+  } );*/
+
+  await test("sqlite_exec (without arguments) to create table", () async {
+    int handler = await sqlite3_open('./database.db');
+    String sql = 'CREATE TABLE IF NOT EXISTS myTable (id int, name text)';
+    await sqlite3_exec(handler, sql);
+    sql = "insert into myTable values (0, 'luciano')";
+    await sqlite3_exec(handler, sql);
+    sql = "select * from myTable";
+    await sqlite3_exec(handler, sql);
+    await sqlite3_close(handler);
   } );
+
 }
 
 FutureOr test(String name, Function functionTest ) async {

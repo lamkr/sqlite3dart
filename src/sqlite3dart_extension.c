@@ -95,6 +95,7 @@ void messageHandler(Dart_Port receivePort, Dart_CObject* message) {
 	Dart_CObject* paramFunctionName = message->value.as_array.values[1];
 
 	Dart_Port replyPortId = paramReplyPortId->value.as_send_port.id;
+	printf("messageHandler:replyPortId = %lld\n", replyPortId);
 	const cstring functionName = paramFunctionName->value.as_string;
 
 	Dart_CObject result;

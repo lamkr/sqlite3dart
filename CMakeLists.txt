@@ -5,7 +5,7 @@
 #
 # C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin
 
-cmake_minimum_required (VERSION 3.12)
+cmake_minimum_required (VERSION 3.10.2)
 
 project(sqlite3dart_extension)
 
