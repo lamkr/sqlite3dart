@@ -48,3 +48,30 @@ bool isEmptyOrNull(const cstring str) {
 bool isNotEmptyOrNull(const cstring str) {
 	return !isEmptyOrNull(str);
 }
+
+DynamicPointer* new_dynp(DynamicPointer *dynpointer, size_t size) {
+	if (dynpointer->pointer == NULL) {
+		dynpointer->size = size;
+		dynpointer->pointer = malloc(dynpointer->size);
+		memset(dynpointer->pointer, 0, dynpointer->size);
+	}
+	else if( size > dynpointer->size ) {
+		pointer newPointer = realloc(dynpointer->pointer, size);
+		if (newPointer) {
+			dynpointer->size = size;
+			dynpointer->pointer = newPointer;
+			memset(dynpointer->pointer, 0, dynpointer->size);
+		}
+	}
+	return dynpointer;
+}
+
+DynamicPointer* del_dynp(DynamicPointer *dynpointer) {
+	if (dynpointer && dynpointer->pointer) {
+		free(dynpointer->pointer);
+		dynpointer->size = 0;
+		dynpointer->pointer = NULL;
+	}
+	return dynpointer;
+}
+

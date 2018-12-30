@@ -30,6 +30,11 @@ typedef struct TFunction {
 	Dart_NativeFunction nativeFunction;
 } Function;
 
+typedef struct DynamicPointer {
+	size_t size;
+	pointer pointer;
+} DynamicPointer;
+
 typedef void(*NativeFunction)(Dart_CObject* message, Dart_CObject* result);
 
 typedef struct TWrapperFunction {
@@ -50,5 +55,9 @@ int Sqlite3Callback(pointer a_param, int argc, cstring* argv, cstring* column);
 bool isEmptyOrNull(const cstring str);
 	
 bool isNotEmptyOrNull(const cstring str);
+
+DynamicPointer* new_dynp(DynamicPointer *dynpointer, size_t size);
+
+DynamicPointer* del_dynp(DynamicPointer *dynpointer);
 
 #endif

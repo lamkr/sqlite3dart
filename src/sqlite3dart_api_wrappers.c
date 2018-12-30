@@ -17,14 +17,25 @@
 
 const cstring ERR_INVALID_HANDLE = "Invalid database handle.";
 
+#define DYNPOINTER_DEFAULT_SIZE (10*1024)
+
+DynamicPointer _dynpointer;
+
 bool isInvalidHandle(int64_t address) {
+	/*
+	  TODO This do not works correctly.
+	  
 	int64_t address32 = (int32_t)address;
 	return address32 < 1;
+	*/
+	return false;
 }
 
 void mountException(Dart_CObject* result, const cstring message) {
+	new_dynp(&_dynpointer, strlen("Exception:" + strlen(message) +1));
+	sprintf_s(_dynpointer.pointer, _dynpointer.size, "Exception:%s", message);
 	result->type = Dart_CObject_kString;
-	result->value.as_string = message;
+	result->value.as_string = _dynpointer.pointer;
 }
 
 void sqlite3_open_wrapper(Dart_CObject* message, Dart_CObject* result) {
@@ -55,25 +66,35 @@ void sqlite3_close_wrapper(Dart_CObject* message, Dart_CObject* result) {
 	int error = sqlite3_close(db);
 	if (error == SQLITE_OK) {
 		result->type = Dart_CObject_kNull;
+		del_dynp(&_dynpointer);
 	}
 	else {
 		mountException(result, (const cstring)sqlite3_errstr(error));
 	}
 }
 
-int callback(pointer parameter, int argc, cstring *argv, cstring *column) {
+int _execRowIndex;
+int execCallback(pointer parameter, int argc, cstring *argv, cstring *column) {
 	Dart_Port replyPortId = *(Dart_Port*) parameter;
-	printf("callback:replyPortId = %lld\n", replyPortId);
-	for (int i = 0; i < argc; i++) {
-		printf("%s = %s,\t", column[i], argv[i]);
-		Dart_CObject result;
-		Dart_PostCObject(replyPortId, &result);
+	Dart_CObject rowIndex, dataColumn;
+	rowIndex.type = Dart_CObject_kInt64;
+	rowIndex.value.as_int64 = ++_execRowIndex;
+	Dart_PostCObject( replyPortId, &rowIndex );
+	for( int colIndex = 0; colIndex < argc; colIndex++ ) {
+		size_t length = strlen(column[colIndex]) + 1 + strlen(argv[colIndex]) + 1;
+		new_dynp( &_dynpointer, length );
+		sprintf_s(_dynpointer.pointer, _dynpointer.size, "%s=%s", column[colIndex], argv[colIndex]);
+		dataColumn.type = Dart_CObject_kString;
+		dataColumn.value.as_string = _dynpointer.pointer;
+		Dart_PostCObject(replyPortId, &dataColumn);
 	}
-	printf("\n");
 	return 0;
 }
 
 void sqlite3_exec_wrapper(Dart_CObject* message, Dart_CObject* result) {
+	_execRowIndex = -1;
+	new_dynp(&_dynpointer, DYNPOINTER_DEFAULT_SIZE);
+
 	Dart_CObject* paramReplyPortId = message->value.as_array.values[0];
 	Dart_Port replyPortId = paramReplyPortId->value.as_send_port.id;
 
@@ -88,10 +109,9 @@ void sqlite3_exec_wrapper(Dart_CObject* message, Dart_CObject* result) {
 
 	Dart_CObject* param3 = message->value.as_array.values[3];
 	const cstring sql = (const cstring)param3->value.as_string;
-	puts(sql);
 
-	const cstring zErrMsg = NULL;
-	int error = sqlite3_exec(db, sql, callback, &replyPortId, &zErrMsg);
+	cstring zErrMsg = NULL;
+	int error = sqlite3_exec(db, sql, execCallback, &replyPortId, &zErrMsg);
 	if (error == SQLITE_OK) {
 		result->type = Dart_CObject_kNull;
 	}

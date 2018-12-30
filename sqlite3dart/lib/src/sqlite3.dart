@@ -5,7 +5,9 @@
 /// license that can be found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:isolate';
+import 'package:http/http.dart' as http;
 
 //import 'repository_core.dart';
 import 'package:sqlite3dart/sqlite3dart.dart';
@@ -27,7 +29,7 @@ Future<int> sqlite3_open(String filename) {
   replyPort.handler = (result) {
     replyPort.close();
     if( result is String ) {
-      completer.completeError(new SqliteException(result));
+      completeIfException(completer, result);
     }
     else
       completer.complete(result);
@@ -50,7 +52,7 @@ Future<void> sqlite3_close(int handler) {
   replyPort.handler = (result) {
     replyPort.close();
     if( result is String ) {
-      completer.completeError(new SqliteException(result));
+      completeIfException(completer, result);
     }
     else
       completer.complete(result);
@@ -58,12 +60,17 @@ Future<void> sqlite3_close(int handler) {
   return completer.future;
 }
 
+void completeIfException(Completer completer, String message) {
+  if( message.startsWith('Exception:') )
+    completer.completeError(new SqliteException(message.substring(10)));
+}
+
 ///
 /// One-step query execution method.
 /// See [https://sqlite.org/c3ref/exec.html]
 ///
-Future<SqliteRow> sqlite3_exec(int handler, String sql) {
-  var completer = new Completer<SqliteRow>();
+Stream sqlite3_exec(int handler, String sql) async* {
+  var controller = StreamController();
   var replyPort = new RawReceivePort();
   var args = new List();
   args.insert(0, replyPort.sendPort);
@@ -72,14 +79,18 @@ Future<SqliteRow> sqlite3_exec(int handler, String sql) {
   args.insert(3, sql);
   get_receive_port().send(args);
   replyPort.handler = (result) {
-    replyPort.close();
-    if( result is String ) {
-      completer.completeError(new SqliteException(result));
+    if( result is int ) {
+      stdout.write('\nlinha $result: ');
     }
-    else
-      completer.complete(result);
+    else if(result is String) {
+      stdout.write('$result,');
+      controller.add(result);
+    }
+    else if( result == null ) {
+      replyPort.close();
+      controller.close();
+    }
   };
-  return completer.future;
 }
 
 

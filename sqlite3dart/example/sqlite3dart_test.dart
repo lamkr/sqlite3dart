@@ -50,11 +50,17 @@ void main() async
     int handler = await sqlite3_open('./database.db');
     String sql = 'CREATE TABLE IF NOT EXISTS myTable (id int, name text)';
     await sqlite3_exec(handler, sql);
-    sql = "insert into myTable values (0, 'luciano')";
-    await sqlite3_exec(handler, sql);
+    for( int i = 0; i < 10; i++ ) {
+      sql = "insert into myTable values ($i, 'luciano $i')";
+      await sqlite3_exec(handler, sql);
+    }
     sql = "select * from myTable";
-    await sqlite3_exec(handler, sql);
-    await sqlite3_close(handler);
+    print(sql);
+    sqlite3_exec(handler, sql)
+        .listen((result) => print(result))
+        .onDone(() async  => await sqlite3_close(handler))
+    ;
+
   } );
 
 }
