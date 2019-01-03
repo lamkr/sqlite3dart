@@ -31,7 +31,7 @@ typedef struct TFunction {
 } Function;
 
 typedef struct DynamicPointer {
-	size_t size;
+	uint64_t size;
 	pointer pointer;
 } DynamicPointer;
 

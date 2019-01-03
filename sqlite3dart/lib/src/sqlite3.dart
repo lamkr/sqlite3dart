@@ -72,7 +72,7 @@ void completeIfException(Completer completer, String message) {
 /// One-step query execution method.
 /// See [https://sqlite.org/c3ref/exec.html]
 ///
-Stream sqlite3_exec(int handler, String sql) async* {
+Stream sqlite3_exec(int handler, String sql) {
   var controller = StreamController();
   var replyPort = new RawReceivePort();
   var args = new List();
@@ -83,7 +83,7 @@ Stream sqlite3_exec(int handler, String sql) async* {
   get_receive_port().send(args);
   replyPort.handler = (result) {
     if( result is int ) {
-      stdout.write('\nlinha $result: ');
+      //stdout.write('\nlinha $result: ');
     }
     else if(result is String) {
       if(isException(result)) {
@@ -91,16 +91,37 @@ Stream sqlite3_exec(int handler, String sql) async* {
         controller.addError(new SqliteException(result.substring(10)));
         return;
       }
-      stdout.write('$result,');
-      controller.add(result);
+      //stdout.write('$result,');
+      //controller.add(result);
     }
     else if( result == null ) {
+      controller.add(str);
       replyPort.close();
       controller.close();
     }
   };
+  return controller.stream;
 }
 
+Future<bool> sqlite3_table_exists(int handler, String tableName) {
+  var completer = new Completer<bool>();
+  var replyPort = new RawReceivePort();
+  var args = new List();
+  args.insert(0, replyPort.sendPort);
+  args.insert(1, 'sqlite3_table_exists');
+  args.insert(2, handler);
+  args.insert(3, tableName );
+  get_receive_port().send(args);
+  replyPort.handler = (result) {
+    replyPort.close();
+    if( result is String ) {
+      completeIfException(completer, result);
+    }
+    else
+      completer.complete(result);
+  };
+  return completer.future;
+}
 
 class SqliteRow
 {}

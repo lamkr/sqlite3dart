@@ -21,7 +21,7 @@ void main() async
     int handler = await sqlite3_open(filepath);
     assert(handler != null);
     await sqlite3_close(handler);
-    assert(fileExists(filepath));
+    Assert(fileExists(filepath));
     deleteFile(filepath);
   });
 
@@ -30,7 +30,7 @@ void main() async
     try {
       handler = await sqlite3_open('??stranger path?? ./database.db');
       await sqlite3_close(handler);
-      assert(true==false, "Would be throwed SqliteException");
+      Assert(true==false, "Would be throwed SqliteException");
     }
     catch(e)
     {}
@@ -40,7 +40,7 @@ void main() async
     String filepath = './database.db';
     int handler = await sqlite3_open(filepath);
     await sqlite3_close(handler);
-    assert(fileExists(filepath));
+    Assert(fileExists(filepath));
     deleteFile(filepath);
   } );
 
@@ -54,56 +54,53 @@ void main() async
   ///  {}
   ///} );
 
-  await test("sqlite_exec to create table", () async {
-    String filepath = './database.db';
+  await test("sqlite_exec: creates table", () async {
+    String filepath = './database.db', tableName = 'myTable';
     int handler = await sqlite3_open(filepath);
-    String sql = 'CREATE TABLE IF NOT EXISTS myTable (id int, name text)';
+    String sql = 'create table $tableName (id int, name text)';
     await sqlite3_exec(handler, sql);
-    for( int i = 0; i < 10; i++ ) {
-      sql = "insert into myTable values ($i, 'luciano $i')";
-      await sqlite3_exec(handler, sql);
-    }
-    sql = "select * from myTable";
-    sqlite3_exec(handler, sql).listen(
-      (result) {
-        print('result: ');
-        print(result);
-      },
-      onDone: () async {
-        print('ondeone');
-        await sqlite3_close(handler);
-        deleteFile(filepath);
-      },
-      onError: (e) => print('oi $e')
-    );
+    bool tableExists = await sqlite3_table_exists(handler, tableName);
+    Assert( tableExists );
+    await sqlite3_close(handler);
+    deleteFile(filepath);
   } );
 
-  /*await test("sqlite_exec to insert row in table", () async {
-    String filepath = './database.db';
+  int ROWCOUNT = 10;
+
+  await test("sqlite_exec: inserts $ROWCOUNT rows in table", () async {
+    String filepath = './database.db', tableName = 'myTable';
     int handler = await sqlite3_open(filepath);
-    String sql = 'CREATE TABLE IF NOT EXISTS myTable (id int, name text)';
+    String sql = 'create table $tableName (id int, name text)';
     await sqlite3_exec(handler, sql);
-    for( int i = 0; i < 10; i++ ) {
-      sql = "insert into myTable values ($i, 'luciano $i')";
+    for( int i = 0; i < ROWCOUNT; i++ ) {
+      sql = "insert into myTable values ($i, 'It is the row $i')";
       await sqlite3_exec(handler, sql);
     }
     sql = "select * from myTable";
+    int rowCount = 0;
     sqlite3_exec(handler, sql)
-        .listen((result)
-    => print(result))
+        .listen((result) {
+          //print(result);
+          rowCount++;
+        })
         .onDone(() async {
-      await sqlite3_close(handler);
-      deleteFile(filepath);
-    } );
-  } );*/
-
-  /// TODO lista tabelas: SELECT name FROM my_db.sqlite_master WHERE type='table';
+          await sqlite3_close(handler);
+          deleteFile(filepath);
+          print(rowCount);
+          Assert(rowCount == ROWCOUNT);
+        } );
+  } );
 
 }
 
 FutureOr test(String name, Function functionTest ) async {
   await functionTest();
   print('Test \'$name\' successfully.\n');
+}
+
+void Assert(bool isValid, [String message='']) {
+  if( !isValid )
+    throw Exception('Condition is not valid. $message');
 }
 
 bool fileExists(String filepath) =>

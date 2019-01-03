@@ -13,7 +13,8 @@
 
 extern const WrapperFunction wrappersFunctionsList[];
 
-DynamicPointer _dynpointer = { 0, NULL };
+const int MAX_DYN_POINTERS = 2;
+DynamicPointer *_dynpointers;
 
 Dart_NativeFunction resolveFunctionName(Dart_Handle name, int argc, bool* auto_setup_scope);
 void get_receive_port(Dart_NativeArguments arguments);
@@ -27,7 +28,10 @@ const Function functionsList[] = {
 Dart_Port _receivePort = ILLEGAL_PORT;
 
 DART_EXPORT Dart_Handle sqlite3dart_extension_Init(Dart_Handle parent_library) {
-	new_dynp(&_dynpointer, DYNPOINTER_DEFAULT_SIZE);
+	_dynpointers = malloc(sizeof(DynamicPointer)*MAX_DYN_POINTERS); 
+	for( int i = 0; i < MAX_DYN_POINTERS; i++ )
+		new_dynp(&_dynpointers[i], DYNPOINTER_DEFAULT_SIZE);
+	//printf("sqlite3dart_extension_Init: _dynpointer { %d, %X }\n", (int) _dynpointer.size, _dynpointer.pointer);
 
 	if (Dart_IsError(parent_library)) {
 		return parent_library;
