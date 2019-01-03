@@ -89,17 +89,18 @@ int sqlite3_exec_callback(pointer parameter, int argc, cstring *argv, cstring *c
 	for( int colIndex = 0; colIndex < argc; colIndex++ ) {
 		columnNameLength = strlen(column[colIndex]);
 		columnValueLength = strlen(argv[colIndex]);
-		size_t sizeLength = sprintf_s(strSize, "%llu:", columnValueLength);
-		rowLength += columnNameLength + 1 + sizeLength + columnValueLength + 1 + 1;
+		size_t sizeLength = sprintf_s(strSize, sizeof(strSize), "%llu:", columnValueLength);
+		rowLength += columnNameLength + 1 + sizeLength + 1 + columnValueLength +1 + 1;
 		new_dynp( &_dynpointers[0], rowLength );
 		strcat(_dynpointers[0].pointer, column[colIndex]);
 		strcat(_dynpointers[0].pointer, "=");
 		strcat(_dynpointers[0].pointer, strSize);
+		strcat(_dynpointers[0].pointer, ":");
 		strcat(_dynpointers[0].pointer, argv[colIndex]);
-		strcat(_dynpointers[0], column[colIndex]);
-		sprintf_s(_dynpointers[1].pointer, _dynpointers[1].size, "%s=%llu:%s,", column[colIndex], columnValueLength, argv[colIndex]);
+		strcat(_dynpointers[0].pointer, ",");
 		dataColumn.type = Dart_CObject_kString;
-		dataColumn.value.as_string = _dynpointer.pointer;
+		dataColumn.value.as_string = _dynpointers[0].pointer;
+		puts(_dynpointers[0].pointer);
 	}
 	row.type = Dart_CObject_kString;
 	Dart_PostCObject(param->replyPortId, &row);
@@ -165,11 +166,11 @@ void sqlite3_table_exists(Dart_CObject* message, Dart_CObject* result) {
 	Dart_CObject* param3 = message->value.as_array.values[3];
 	const cstring tableName = (const cstring)param3->value.as_string;
 
-	sprintf_s(_dynpointer.pointer, _dynpointer.size, "select name from sqlite_master where type='table' and name='%s'", tableName);
+	sprintf_s(_dynpointers[0].pointer, _dynpointers[0].size, "select name from sqlite_master where type='table' and name='%s'", tableName);
 
 	cstring zErrMsg = NULL;
 	CallbackParameter parameter = { replyPortId, tableName };
-	int error = sqlite3_exec(db, _dynpointer.pointer, sqlite3_table_exists_callback, &parameter, &zErrMsg);
+	int error = sqlite3_exec(db, _dynpointers[0].pointer, sqlite3_table_exists_callback, &parameter, &zErrMsg);
 	if (error == SQLITE_OK) {
 		result->type = Dart_CObject_kNull;
 	}

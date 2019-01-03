@@ -1,8 +1,8 @@
 .vs/
-dart/.dart_tool/
-dart/.packages
-dart/sqlite3dart_extension.dll
-dart/pubspec.lock
+sqlite3dart/.dart_tool/
+sqlite3dart/.packages
+sqlite3dart/sqlite3dart_extension.dll
+sqlite3dart/pubspec.lock
 build/
 CMakeCache.txt
 CMakeFiles

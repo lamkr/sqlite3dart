@@ -95,7 +95,7 @@ Stream sqlite3_exec(int handler, String sql) {
       //controller.add(result);
     }
     else if( result == null ) {
-      controller.add(str);
+      //controller.add(str);
       replyPort.close();
       controller.close();
     }
