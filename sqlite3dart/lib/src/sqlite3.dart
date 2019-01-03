@@ -60,8 +60,11 @@ Future<void> sqlite3_close(int handler) {
   return completer.future;
 }
 
+bool isException(String message) =>
+  message.startsWith('Exception:');
+
 void completeIfException(Completer completer, String message) {
-  if( message.startsWith('Exception:') )
+  if( isException(message) )
     completer.completeError(new SqliteException(message.substring(10)));
 }
 
@@ -83,6 +86,11 @@ Stream sqlite3_exec(int handler, String sql) async* {
       stdout.write('\nlinha $result: ');
     }
     else if(result is String) {
+      if(isException(result)) {
+        replyPort.close();
+        controller.addError(new SqliteException(result.substring(10)));
+        return;
+      }
       stdout.write('$result,');
       controller.add(result);
     }

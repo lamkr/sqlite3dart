@@ -9,8 +9,11 @@
 #include "sqlite3dart_core.h"
 
 #define RECEIVE_PORT_NAME	"lamkr.sqlite3dart.receivePort"
+#define DYNPOINTER_DEFAULT_SIZE (10*1024)
 
 extern const WrapperFunction wrappersFunctionsList[];
+
+DynamicPointer _dynpointer = { 0, NULL };
 
 Dart_NativeFunction resolveFunctionName(Dart_Handle name, int argc, bool* auto_setup_scope);
 void get_receive_port(Dart_NativeArguments arguments);
@@ -24,6 +27,8 @@ const Function functionsList[] = {
 Dart_Port _receivePort = ILLEGAL_PORT;
 
 DART_EXPORT Dart_Handle sqlite3dart_extension_Init(Dart_Handle parent_library) {
+	new_dynp(&_dynpointer, DYNPOINTER_DEFAULT_SIZE);
+
 	if (Dart_IsError(parent_library)) {
 		return parent_library;
 	}
@@ -95,7 +100,6 @@ void messageHandler(Dart_Port receivePort, Dart_CObject* message) {
 	Dart_CObject* paramFunctionName = message->value.as_array.values[1];
 
 	Dart_Port replyPortId = paramReplyPortId->value.as_send_port.id;
-	printf("messageHandler:replyPortId = %lld\n", replyPortId);
 	const cstring functionName = paramFunctionName->value.as_string;
 
 	Dart_CObject result;

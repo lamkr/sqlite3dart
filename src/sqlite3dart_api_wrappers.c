@@ -17,9 +17,7 @@
 
 const cstring ERR_INVALID_HANDLE = "Invalid database handle.";
 
-#define DYNPOINTER_DEFAULT_SIZE (10*1024)
-
-DynamicPointer _dynpointer;
+extern DynamicPointer _dynpointer;
 
 bool isInvalidHandle(int64_t address) {
 	/*
@@ -32,7 +30,7 @@ bool isInvalidHandle(int64_t address) {
 }
 
 void mountException(Dart_CObject* result, const cstring message) {
-	new_dynp(&_dynpointer, strlen("Exception:" + strlen(message) +1));
+	new_dynp(&_dynpointer, strlen("Exception:") + strlen(message) + 1);
 	sprintf_s(_dynpointer.pointer, _dynpointer.size, "Exception:%s", message);
 	result->type = Dart_CObject_kString;
 	result->value.as_string = _dynpointer.pointer;
@@ -50,7 +48,6 @@ void sqlite3_open_wrapper(Dart_CObject* message, Dart_CObject* result) {
 	}
 	else {
 		mountException(result, (const cstring)sqlite3_errstr(error));
-		sqlite3_close(db);
 	}
 }
 
@@ -93,7 +90,6 @@ int execCallback(pointer parameter, int argc, cstring *argv, cstring *column) {
 
 void sqlite3_exec_wrapper(Dart_CObject* message, Dart_CObject* result) {
 	_execRowIndex = -1;
-	new_dynp(&_dynpointer, DYNPOINTER_DEFAULT_SIZE);
 
 	Dart_CObject* paramReplyPortId = message->value.as_array.values[0];
 	Dart_Port replyPortId = paramReplyPortId->value.as_send_port.id;
@@ -116,7 +112,6 @@ void sqlite3_exec_wrapper(Dart_CObject* message, Dart_CObject* result) {
 		result->type = Dart_CObject_kNull;
 	}
 	else {
-		puts(zErrMsg);
 		mountException(result, zErrMsg);
 		sqlite3_free(zErrMsg);
 	}
