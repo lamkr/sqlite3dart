@@ -5,14 +5,13 @@
 /// license that can be found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:isolate';
-import 'package:http/http.dart' as http;
 
 //import 'repository_core.dart';
 import 'package:sqlite3dart/sqlite3dart.dart';
 
 import 'SqliteException.dart';
+import 'sqlite3_core.dart';
 
 ///
 /// Open a new database connection.
@@ -60,20 +59,12 @@ Future<void> sqlite3_close(int handler) {
   return completer.future;
 }
 
-bool isException(String message) =>
-  message.startsWith('Exception:');
-
-void completeIfException(Completer completer, String message) {
-  if( isException(message) )
-    completer.completeError(new SqliteException(message.substring(10)));
-}
-
 ///
 /// One-step query execution method.
 /// See [https://sqlite.org/c3ref/exec.html]
 ///
-Stream sqlite3_exec(int handler, String sql) {
-  var controller = StreamController();
+Stream<SqliteRow> sqlite3_exec(int handler, String sql) {
+  var controller = StreamController<SqliteRow>();
   var replyPort = new RawReceivePort();
   var args = new List();
   args.insert(0, replyPort.sendPort);
@@ -91,8 +82,8 @@ Stream sqlite3_exec(int handler, String sql) {
         controller.addError(new SqliteException(result.substring(10)));
         return;
       }
-      //stdout.write('$result,');
-      //controller.add(result);
+      //stdout.write('$result');
+      controller.add(parseRow(result));
     }
     else if( result == null ) {
       //controller.add(str);
@@ -123,5 +114,3 @@ Future<bool> sqlite3_table_exists(int handler, String tableName) {
   return completer.future;
 }
 
-class SqliteRow
-{}

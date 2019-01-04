@@ -16,7 +16,7 @@ import 'package:sqlite3dart/sqlite3dart.dart';
 void main() async
 {
 
-  await test("sqlite_open", () async {
+  /*await test("sqlite_open", () async {
     String filepath = './database.db';
     int handler = await sqlite3_open(filepath);
     assert(handler != null);
@@ -63,7 +63,7 @@ void main() async
     Assert( tableExists );
     await sqlite3_close(handler);
     deleteFile(filepath);
-  } );
+  } );*/
 
   int ROWCOUNT = 10;
 
@@ -86,7 +86,7 @@ void main() async
         .onDone(() async {
           await sqlite3_close(handler);
           deleteFile(filepath);
-          print(rowCount);
+          //print('rowCount=$rowCount');
           Assert(rowCount == ROWCOUNT);
         } );
   } );

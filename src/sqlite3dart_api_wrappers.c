@@ -79,30 +79,39 @@ void sqlite3_close_wrapper(Dart_CObject* message, Dart_CObject* result) {
 int _execRowIndex;
 int sqlite3_exec_callback(pointer parameter, int argc, cstring *argv, cstring *column) {
 	CallbackParameter *param = (CallbackParameter*)parameter;
-	Dart_CObject rowIndex, dataColumn, row;
+	
+	Dart_CObject rowIndex;
 	rowIndex.type = Dart_CObject_kInt64;
 	rowIndex.value.as_int64 = ++_execRowIndex;
 	Dart_PostCObject( param->replyPortId, &rowIndex );
+	
 	uint64_t rowLength = 0, columnNameLength, columnValueLength;
 	char strSize[32]; 
-	memset(_dynpointers[0].pointer, 0, _dynpointers[0].size);
-	for( int colIndex = 0; colIndex < argc; colIndex++ ) {
+	for (int colIndex = 0; colIndex < argc; colIndex++) {
 		columnNameLength = strlen(column[colIndex]);
 		columnValueLength = strlen(argv[colIndex]);
-		size_t sizeLength = sprintf_s(strSize, sizeof(strSize), "%llu:", columnValueLength);
-		rowLength += columnNameLength + 1 + sizeLength + 1 + columnValueLength +1 + 1;
-		new_dynp( &_dynpointers[0], rowLength );
-		strcat(_dynpointers[0].pointer, column[colIndex]);
-		strcat(_dynpointers[0].pointer, "=");
-		strcat(_dynpointers[0].pointer, strSize);
-		strcat(_dynpointers[0].pointer, ":");
-		strcat(_dynpointers[0].pointer, argv[colIndex]);
-		strcat(_dynpointers[0].pointer, ",");
-		dataColumn.type = Dart_CObject_kString;
-		dataColumn.value.as_string = _dynpointers[0].pointer;
-		puts(_dynpointers[0].pointer);
+		size_t sizeLength = sprintf_s(strSize, sizeof(strSize), "%llu", columnValueLength);
+		rowLength += columnNameLength + 1 + sizeLength + 1 + columnValueLength + 1 + 2;
 	}
+
+	new_dynp( &_dynpointers[0], rowLength );
+	memset(_dynpointers[0].pointer, 0, _dynpointers[0].size);
+
+	for (int colIndex = 0; colIndex < argc; colIndex++) {
+		columnValueLength = strlen(argv[colIndex]);
+		sprintf_s(strSize, sizeof(strSize), "%llu", columnValueLength);
+		strcat_s(_dynpointers[0].pointer, _dynpointers[0].size, column[colIndex]);
+		strcat_s(_dynpointers[0].pointer, _dynpointers[0].size, "=");
+		strcat_s(_dynpointers[0].pointer, _dynpointers[0].size, strSize);
+		strcat_s(_dynpointers[0].pointer, _dynpointers[0].size, ":");
+		strcat_s(_dynpointers[0].pointer, _dynpointers[0].size, argv[colIndex]);
+		strcat_s(_dynpointers[0].pointer, _dynpointers[0].size, ",");
+	}
+	strcat_s(_dynpointers[0].pointer, _dynpointers[0].size, "\n");
+
+	Dart_CObject row;
 	row.type = Dart_CObject_kString;
+	row.value.as_string = _dynpointers[0].pointer;
 	Dart_PostCObject(param->replyPortId, &row);
 	return 0;
 }

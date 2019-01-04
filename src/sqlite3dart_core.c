@@ -50,6 +50,7 @@ bool isNotEmptyOrNull(const cstring str) {
 }
 
 DynamicPointer* new_dynp(DynamicPointer *dynpointer, size_t size) {
+	//printf("dynpointer: pointer=%X, size=%d\n", dynpointer->pointer, dynpointer->size);
 	if (dynpointer->pointer == NULL) {
 		dynpointer->size = size;
 		dynpointer->pointer = malloc(dynpointer->size);

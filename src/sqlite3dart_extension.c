@@ -29,6 +29,7 @@ Dart_Port _receivePort = ILLEGAL_PORT;
 
 DART_EXPORT Dart_Handle sqlite3dart_extension_Init(Dart_Handle parent_library) {
 	_dynpointers = malloc(sizeof(DynamicPointer)*MAX_DYN_POINTERS); 
+	memset(_dynpointers, 0, sizeof(DynamicPointer)*MAX_DYN_POINTERS);
 	for( int i = 0; i < MAX_DYN_POINTERS; i++ )
 		new_dynp(&_dynpointers[i], DYNPOINTER_DEFAULT_SIZE);
 	//printf("sqlite3dart_extension_Init: _dynpointer { %d, %X }\n", (int) _dynpointer.size, _dynpointer.pointer);
