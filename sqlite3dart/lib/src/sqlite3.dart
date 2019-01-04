@@ -9,6 +9,7 @@ import 'dart:isolate';
 
 //import 'repository_core.dart';
 import 'package:sqlite3dart/sqlite3dart.dart';
+import 'SqliteRow.dart';
 
 import 'SqliteException.dart';
 import 'sqlite3_core.dart';
@@ -83,7 +84,9 @@ Stream<SqliteRow> sqlite3_exec(int handler, String sql) {
         return;
       }
       //stdout.write('$result');
-      controller.add(parseRow(result));
+      SqliteRow row = parseRow(result);
+      print(row);
+      controller.add(row);
     }
     else if( result == null ) {
       //controller.add(str);

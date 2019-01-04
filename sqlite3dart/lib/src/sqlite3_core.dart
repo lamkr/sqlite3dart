@@ -6,6 +6,9 @@
 
 import 'dart:async';
 
+import 'SqliteRow.dart';
+import 'SqliteText.dart';
+
 import 'SqliteException.dart';
 
 bool isException(String message) =>
@@ -29,7 +32,7 @@ SqliteRow parseRow( String stringRow ) {
     //print('$name, $size, $value');
     int nextColIndex = _nextColIndex(stringRow, size, equalIndex);
     startIndex = nextColIndex;
-    row.addColumn(name, SqliteText(), size, value);
+    row.addColumn(name, SqliteText(value, size));
   }
   return row;
 }
@@ -59,63 +62,3 @@ int _nextColIndex(String stringRow, int size, int equalIndex) {
   return nextColIndex + size + 1;
 }
 
-class SqliteDataType
-{
-  final int id;
-  SqliteDataType(this.id);
-}
-
-class SqliteInteger extends SqliteDataType {
-  final String name = 'SQLITE_INTEGER';
-  SqliteInteger() : super(1);
-}
-
-class SqliteFloat extends SqliteDataType {
-  final String name = 'SQLITE_FLOAT';
-  SqliteFloat() : super(2);
-}
-
-class SqliteText extends SqliteDataType {
-  final String name = 'SQLITE_TEXT';
-  SqliteText() : super(3);
-}
-
-class SqliteBlob extends SqliteDataType {
-  final String name = 'SQLITE_BLOB';
-  SqliteBlob() : super(4);
-}
-
-class SqliteNull extends SqliteDataType {
-  final String name = 'SQLITE_NULL';
-  SqliteNull() : super(5);
-
-  @override
-  String toString() => name;
-}
-
-class SqliteColumn
-{
-  final String name;
-  final SqliteDataType type;
-  final int size;
-  final dynamic value;
-
-  SqliteColumn(this.name, this.type, this.size, this.value);
-
-  @override
-  String toString() => '$name($type, $size)=$value';
-}
-
-class SqliteRow
-{
-  static SqliteRow get empty => new SqliteRow(-1);
-
-  final int id;
-  final Map<String, SqliteColumn> columns;
-
-  SqliteRow(this.id) : columns = {};
-
-  SqliteColumn addColumn(String name, SqliteDataType type, int size, dynamic value) {
-    return columns[name] = new SqliteColumn(name, type, size, value);
-  }
-}

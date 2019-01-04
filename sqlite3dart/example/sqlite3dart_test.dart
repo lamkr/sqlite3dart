@@ -108,3 +108,8 @@ bool fileExists(String filepath) =>
 
 void deleteFile(String filepath) =>
   new File(filepath).deleteSync();
+
+	/*
+https://www.burkharts.net/apps/blog/fundamentals-of-dart-streams/
+https://medium.com/flutter-community/reactive-programming-streams-bloc-6f0d2bd2d248
+	*/
