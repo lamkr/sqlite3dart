@@ -1,10 +1,8 @@
 import 'SqliteDataType.dart';
 
 class SqliteNull
-    extends SqliteDataType
+    extends SqliteDataType<Object>
 {
-  final Object value;
-
-  SqliteNull() : value=null, super(5, 'SQLITE_NULL');
+  SqliteNull() : super(5, 'SQLITE_NULL', null);
 }
 

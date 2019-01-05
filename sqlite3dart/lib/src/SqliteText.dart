@@ -1,16 +1,8 @@
-import 'package:sqlite3dart/src/SqliteDataType.dart';
+import 'SqliteDataType.dart';
 
 class SqliteText
-    extends SqliteDataType
+    extends SqliteDataType<String>
 {
-  final int size;
-  final String value;
-
-  SqliteText(this.value, this.size) : super(3, 'SQLITE_TEXT');
-
-  @override
-  String toString() {
-    return '$size:$value';
-  }
+  SqliteText(String value) : super(3, 'SQLITE_TEXT', value);
 }
 

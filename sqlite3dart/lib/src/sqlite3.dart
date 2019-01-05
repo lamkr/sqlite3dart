@@ -5,6 +5,7 @@
 /// license that can be found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:isolate';
 
 //import 'repository_core.dart';
@@ -84,8 +85,7 @@ Stream<SqliteRow> sqlite3_exec(int handler, String sql) {
         return;
       }
       //stdout.write('$result');
-      SqliteRow row = parseRow(result);
-      print(row);
+      SqliteRow row = parseExecRow(result);
       controller.add(row);
     }
     else if( result == null ) {

@@ -1,10 +1,8 @@
 import 'SqliteDataType.dart';
 
 class SqliteInteger
-    extends SqliteDataType
+    extends SqliteDataType<int>
 {
-  final int value;
-
-  SqliteInteger(this.value) : super(1, 'SQLITE_INTEGER');
+  SqliteInteger(int value) : super(1, 'SQLITE_INTEGER', value);
 }
 

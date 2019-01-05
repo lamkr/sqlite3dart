@@ -41,6 +41,14 @@ int Sqlite3Callback(pointer a_param, int argc, cstring *argv, cstring *column) {
 	return 0;
 }
 
+int sizeOfInteger(uint64_t value) {
+	int size = 0;
+	do {
+		size++;
+	} while ((value = value / 10) > 0);
+	return size;
+}
+
 bool isEmptyOrNull(const cstring str) {
 	return str == NULL|| strlen(str) == 0;
 }

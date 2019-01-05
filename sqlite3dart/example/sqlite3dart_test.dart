@@ -12,11 +12,19 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:sqlite3dart/sqlite3dart.dart';
+import 'package:sqlite3dart/src/SqliteBoolean.dart';
 
 void main() async
 {
 
-  /*await test("sqlite_open", () async {
+  await test("test boolean data type", () async {
+    Assert( new SqliteBoolean(true).value );
+    Assert( new SqliteBoolean(false).value == false );
+    Assert( new SqliteBoolean(null).value == null );
+    Assert( new SqliteBoolean(null).isNull );
+  });
+
+  await test("sqlite_open", () async {
     String filepath = './database.db';
     int handler = await sqlite3_open(filepath);
     assert(handler != null);
@@ -63,9 +71,9 @@ void main() async
     Assert( tableExists );
     await sqlite3_close(handler);
     deleteFile(filepath);
-  } );*/
+  } );
 
-  int ROWCOUNT = 10;
+  const int ROWCOUNT = 10;
 
   await test("sqlite_exec: inserts $ROWCOUNT rows in table", () async {
     String filepath = './database.db', tableName = 'myTable';
@@ -79,16 +87,40 @@ void main() async
     sql = "select * from myTable";
     int rowCount = 0;
     sqlite3_exec(handler, sql)
-        .listen((result) {
-          //print(result);
+        .listen((sqliteRow) {
+          //print(sqliteRow);
           rowCount++;
         })
         .onDone(() async {
           await sqlite3_close(handler);
           deleteFile(filepath);
-          //print('rowCount=$rowCount');
+          print('rowCount=$rowCount');
           Assert(rowCount == ROWCOUNT);
         } );
+  } );
+
+  await test("sqlite_exec: check count(*) == 10 inserted rows in table", () async {
+    String filepath = './database.db', tableName = 'myTable';
+    int handler = await sqlite3_open(filepath);
+    String sql = 'create table $tableName (id int, name text)';
+    await sqlite3_exec(handler, sql);
+    for( int i = 0; i < ROWCOUNT; i++ ) {
+      sql = "insert into myTable values ($i, 'It is the row $i')";
+      await sqlite3_exec(handler, sql);
+    }
+    sql = "select count(*) from myTable";
+    int rowCount = 0;
+    sqlite3_exec(handler, sql)
+        .listen((sqliteRow) {
+          print(sqliteRow);
+          rowCount = sqliteRow['count'].value;
+        })
+        .onDone(() async {
+          print('donw');
+          await sqlite3_close(handler);
+          deleteFile(filepath);
+          Assert(rowCount == ROWCOUNT);
+      } );
   } );
 
 }

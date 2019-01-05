@@ -52,6 +52,8 @@ const cstring getCString(Dart_NativeArguments arguments, int index);
 
 int Sqlite3Callback(pointer a_param, int argc, cstring* argv, cstring* column);
 
+int sizeOfInteger(uint64_t value);
+	
 bool isEmptyOrNull(const cstring str);
 	
 bool isNotEmptyOrNull(const cstring str);

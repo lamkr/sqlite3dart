@@ -76,27 +76,28 @@ void sqlite3_close_wrapper(Dart_CObject* message, Dart_CObject* result) {
 	}
 }
 
-int _execRowIndex;
-int sqlite3_exec_callback(pointer parameter, int argc, cstring *argv, cstring *column) {
+uint64_t _execRowIndex;
+int sqlite3_exec_callback2(pointer parameter, int argc, cstring *argv, cstring *column) {
 	CallbackParameter *param = (CallbackParameter*)parameter;
-	
-	Dart_CObject rowIndex;
-	rowIndex.type = Dart_CObject_kInt64;
-	rowIndex.value.as_int64 = ++_execRowIndex;
-	Dart_PostCObject( param->replyPortId, &rowIndex );
-	
-	uint64_t rowLength = 0, columnNameLength, columnValueLength;
-	char strSize[32]; 
+
+	uint64_t columnNameLength, columnValueLength, columnValueSizeLength;
+
+	uint64_t rowLength = sizeOfInteger(_execRowIndex) + 1;
 	for (int colIndex = 0; colIndex < argc; colIndex++) {
 		columnNameLength = strlen(column[colIndex]);
 		columnValueLength = strlen(argv[colIndex]);
-		size_t sizeLength = sprintf_s(strSize, sizeof(strSize), "%llu", columnValueLength);
-		rowLength += columnNameLength + 1 + sizeLength + 1 + columnValueLength + 1 + 2;
+		columnValueSizeLength = sizeOfInteger(columnValueLength);
+		rowLength += columnNameLength + 1 + columnValueSizeLength + 1 + columnValueLength + 1;
 	}
 
-	new_dynp( &_dynpointers[0], rowLength );
+	new_dynp(&_dynpointers[0], rowLength);
 	memset(_dynpointers[0].pointer, 0, _dynpointers[0].size);
 
+	// Start string with index of the line.
+	++_execRowIndex;
+	sprintf_s(_dynpointers[0].pointer, _dynpointers[0].size, "%llu,", _execRowIndex);
+
+	char strSize[32];
 	for (int colIndex = 0; colIndex < argc; colIndex++) {
 		columnValueLength = strlen(argv[colIndex]);
 		sprintf_s(strSize, sizeof(strSize), "%llu", columnValueLength);
@@ -136,7 +137,7 @@ void sqlite3_exec_wrapper(Dart_CObject* message, Dart_CObject* result) {
 
 	cstring zErrMsg = NULL;
 	CallbackParameter parameter = { replyPortId, NULL};
-	int error = sqlite3_exec(db, sql, sqlite3_exec_callback, &parameter, &zErrMsg);
+	int error = sqlite3_exec(db, sql, sqlite3_exec_callback2, &parameter, &zErrMsg);
 	if (error == SQLITE_OK) {
 		result->type = Dart_CObject_kNull;
 	}
