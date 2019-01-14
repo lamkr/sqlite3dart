@@ -11,101 +11,77 @@
 ///
 import 'dart:async';
 import 'dart:io';
-import 'package:async/async.dart';
 import 'package:sqlite3dart/sqlite3dart.dart';
 import 'package:sqlite3dart/src/SqliteBoolean.dart';
-import 'package:sqlite3dart/src/SqliteRow.dart';
 
 const int ROWCOUNT = 10;
 
-test_6() async {
-  String filepath = './database.db', tableName = 'myTable';
+test_1() async {
+  await test("sqlite_exec: inserts $ROWCOUNT rows in table", () async {
+    String filepath = './database.db', tableName = 'myTable';
+    int handler = await sqlite3_open(filepath);
+    String sql = 'create table $tableName (id int, name text)';
+    await sqlite3_exec(handler, sql);
 
-  print('test_6 sqlite3_open');
-  int handler = await sqlite3_open(filepath);
+    sql = "";
+    for( int i = 0; i < ROWCOUNT; i++ ) {
+      sql += "insert into myTable values ($i, 'It is the row $i');";
+      //await sqlite3_exec(handler, sql);
+    }
+    await sqlite3_exec(handler, sql);
 
-  print('test_6 sqlite3_exec');
-  String sql = 'create table $tableName (id int, name text)';
-  StreamQueue<SqliteRow> queue
-    = new StreamQueue<SqliteRow>(sqlite3_exec(handler, sql));
-
-  if(await queue.hasNext)
-    await queue.next;
-
-  print('test_6 sqlite3_close');
-  await sqlite3_close(handler);
-
-  print('test_6 delete:$filepath');
-  deleteFile(filepath);
-
-  /*sql = "";
-  for( int i = 0; i < ROWCOUNT; i++ ) {
-    sql += "insert into myTable values ($i, 'test_6: It is the row $i');";
-    //await sqlite3_exec(handler, sql);
-  }
-  await sqlite3_exec(handler, sql);
-
-  sql = "select * from myTable";
-  int rowCount = 0;
-  sqlite3_exec(handler, sql)
-    .listen((sqliteRow) {
+    sql = "select * from myTable";
+    int rowCount = 0;
+    sqlite3_exec(handler, sql)
+        .listen((sqliteRow) {
       print(sqliteRow);
       rowCount++;
     })
-    .onDone(() async
-    {
+        .onDone(() async {
       print('rowCount=$rowCount');
       await sqlite3_close(handler);
       print('closed');
       deleteFile(filepath);
       Assert(rowCount == ROWCOUNT);
-      print("Test 'sqlite_exec: inserts $ROWCOUNT rows in table' successfully");
-    } );*/
+    } );
+  } );
 }
 
-test_7() async {
-  String filepath = './database.db', tableName = 'myTable';
-  print('test_7 $filepath');
-  deleteFile(filepath);
-
-  int handler = await sqlite3_open(filepath);
-  print('test_6 sqlite3_open');
-
-  String sql = 'create table $tableName (id int, name text)';
-  await sqlite3_exec(handler, sql);
-  print('test_6 sqlite3_exec');
-
-  sql = "";
-  for( int i = 0; i < ROWCOUNT; i++ ) {
-    sql += "insert into myTable values ($i, 'test_7: It is the row $i')";
-  }
-
-  StreamQueue<SqliteRow> queue
-    = new StreamQueue<SqliteRow>(sqlite3_exec(handler, sql));
-
-  sql = "select count(*) from myTable";
-  int rowCount = 0;
-  sqlite3_exec(handler, sql)
-    .listen((sqliteRow) {
+test_2() async {
+  await test("sqlite_exec: check count(*) == 10 inserted rows in table", () async {
+    String filepath = './database.db', tableName = 'myTable';
+    print(filepath);
+    deleteFile(filepath);
+    int handler = await sqlite3_open(filepath);
+    String sql = 'create table $tableName (id int, name text)';
+    await sqlite3_exec(handler, sql);
+    for( int i = 0; i < ROWCOUNT; i++ ) {
+      sql = "insert into myTable values ($i, 'It is the row $i')";
+      await sqlite3_exec(handler, sql);
+    }
+    sql = "select count(*) from myTable";
+    int rowCount = 0;
+    await sqlite3_exec(handler, sql)
+        .listen((sqliteRow) {
       print('lisyen');
       print(sqliteRow);
       rowCount = sqliteRow['count'].value;
     })
-    .onDone(() async
-    {
+        .onDone(() async {
       print('donw');
       await sqlite3_close(handler);
       await deleteFileAsync(filepath);
       Assert(rowCount == ROWCOUNT);
-      print("Test 'sqlite_exec: check count(*) == 10 inserted rows in table' successfully");
     } );
-
+  } ).then((name) {
+    print('Test \'$name\' successfully.\n');
+  });
 }
 
 void main() async
 {
-  await test_6();
-  await test_7();
+  await test_1();
+  await test_2();
 /*
   await test("test boolean data type", () async {
     Assert( new SqliteBoolean(true).value );
@@ -237,16 +213,7 @@ bool fileExists(String filepath) =>
   new File(filepath).existsSync();
 
 void deleteFile(String filepath) {
-  bool notDeleted = false;
-  do {
-    try {
-      new File(filepath).deleteSync();
-    }
-    catch(e) {
-      if( ! e.toString().contains('The system cannot find the file') )
-        notDeleted = true;
-    }
-  } while(notDeleted);
+  new File(filepath).deleteSync();
 }
 
 Future<FileSystemEntity> deleteFileAsync(String filepath) async {
