@@ -1,5 +1,6 @@
 .vs/
 sqlite3dart/.idea/
+sqlite3dart/.idea/libraries/
 sqlite3dart/.dart_tool/
 sqlite3dart/.packages
 sqlite3dart/example/sqlite3dart_extension.dll
