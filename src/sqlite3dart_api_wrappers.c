@@ -1,4 +1,5 @@
 // Copyright (c) 2018 Luciano Rodrigues (Brodi).
+// Copyright (c) 2018 Luciano Rodrigues (Brodi).
 // Please see the AUTHORS file for details. 
 // All rights reserved. Use of this source code is governed by a MIT-style 
 // license that can be found in the LICENSE file.
@@ -153,11 +154,13 @@ int sqlite3_table_exists_callback(pointer parameter, int argc, cstring *argv, cs
 	Dart_CObject result;
 	result.type = Dart_CObject_kBool;
 	result.value.as_bool = false;
+	int found = 0;
 	if( argc == 1 ) {
 		result.value.as_bool = strcmp(argv[0], tableName) == 0;
+		found = 1;
 	}
 	Dart_PostCObject(param->replyPortId, &result);
-	return 0;
+	return found;
 }
 
 void sqlite3_table_exists(Dart_CObject* message, Dart_CObject* result) {
@@ -176,7 +179,7 @@ void sqlite3_table_exists(Dart_CObject* message, Dart_CObject* result) {
 	Dart_CObject* param3 = message->value.as_array.values[3];
 	const cstring tableName = (const cstring)param3->value.as_string;
 
-	sprintf_s(_dynpointers[0].pointer, _dynpointers[0].size, "select name from sqlite_master where type='table' and name='%s'", tableName);
+	sprintf_s(_dynpointers[0].pointer, _dynpointers[0].size, "select name from sqlite_master where type = 'table'");
 
 	cstring zErrMsg = NULL;
 	CallbackParameter parameter = { replyPortId, tableName };
@@ -190,11 +193,201 @@ void sqlite3_table_exists(Dart_CObject* message, Dart_CObject* result) {
 	}
 }
 
+/*
+int sqlite3_prepare_v2(
+  sqlite3 *db,            // Database handle 
+const char *zSql,       // SQL statement, UTF-8 encoded 
+int nByte,              // Maximum length of zSql in bytes. 
+sqlite3_stmt **ppStmt,  // OUT: Statement handle 
+const char **pzTail     // OUT: Pointer to unused portion of zSql 
+); */
+void sqlite3_prepare_v2_wrapper(Dart_CObject* message, Dart_CObject* result) {
+	Dart_CObject* paramReplyPortId = message->value.as_array.values[0];
+	Dart_Port replyPortId = paramReplyPortId->value.as_send_port.id;
+
+	Dart_CObject* paramHandle= message->value.as_array.values[2];
+	int64_t handle = paramHandle->value.as_int64;
+	if (isInvalidHandle(handle)) {
+		mountException(result, ERR_INVALID_HANDLE);
+		return;
+	}
+
+	sqlite3 *db = (sqlite3 *)handle;
+
+	Dart_CObject* paramSqlStatement = message->value.as_array.values[3];
+	const cstring sqlStatement = (const cstring)paramSqlStatement->value.as_string;
+	
+	int maxLength = -1;
+	sqlite3_stmt *statementHandle = NULL;
+	const cstring unusedSqlStatement = NULL;
+	int error = sqlite3_prepare_v2(db, sqlStatement, maxLength, &statementHandle, &unusedSqlStatement);
+	if (error == SQLITE_OK) {
+		result->type = Dart_CObject_kInt64;
+		result->value.as_int64 = (int64_t)statementHandle;
+	}
+	else {
+		//mountException(result, (const cstring)sqlite3_errmsg(db));
+		mountException(result, (const cstring)sqlite3_errstr(error));
+	}
+}
+
+void sqlite3_step_wrapper(Dart_CObject* message, Dart_CObject* result) {
+	Dart_CObject* param = message->value.as_array.values[0];
+	Dart_Port replyPortId = param->value.as_send_port.id;
+
+	param = message->value.as_array.values[2];
+	int64_t statement = param->value.as_int64;
+
+	sqlite3_stmt *statementHandle = (sqlite3_stmt *)statement;
+
+	int error = sqlite3_step(statementHandle);
+
+	if (error == SQLITE_OK) {
+		result->type = Dart_CObject_kNull;
+	}
+	else {
+		//mountException(result, (const cstring)sqlite3_errmsg(db));
+		mountException(result, (const cstring)sqlite3_errstr(error));
+	}
+}
+
+void sqlite3_finalize_wrapper(Dart_CObject* message, Dart_CObject* result) {
+	Dart_CObject* paramReplyPortId = message->value.as_array.values[0];
+	Dart_Port replyPortId = paramReplyPortId->value.as_send_port.id;
+
+	Dart_CObject* paramStatement = message->value.as_array.values[2];
+	int64_t statement = paramStatement->value.as_int64;
+
+	sqlite3_stmt *statementHandle = (sqlite3_stmt *) statement;
+
+	int error = sqlite3_finalize(statementHandle);
+
+	if (error == SQLITE_OK) {
+		result->type = Dart_CObject_kNull;
+	}
+	else {
+		//mountException(result, (const cstring)sqlite3_errmsg(db));
+		mountException(result, (const cstring)sqlite3_errstr(error));
+	}
+}
+
+void sqlite3_bind_int_wrapper(Dart_CObject* message, Dart_CObject* result) {
+	Dart_CObject* param = message->value.as_array.values[0];
+	Dart_Port replyPortId = param->value.as_send_port.id;
+
+	param = message->value.as_array.values[2];
+	int64_t statement = param->value.as_int64;
+	sqlite3_stmt *statementHandle = (sqlite3_stmt *)statement;
+
+	param = message->value.as_array.values[3];
+	int64_t index = param->value.as_int64;
+
+	param = message->value.as_array.values[4];
+	int32_t value = param->value.as_int32;
+	printf("%d\n", value);
+
+	int error = sqlite3_bind_int(statementHandle, index, value);
+
+	if (error == SQLITE_OK) {
+		result->type = Dart_CObject_kNull;
+	}
+	else {
+		//mountException(result, (const cstring)sqlite3_errmsg(db));
+		mountException(result, (const cstring)sqlite3_errstr(error));
+	}
+}
+
+void sqlite3_bind_int64_wrapper(Dart_CObject* message, Dart_CObject* result) {
+	Dart_CObject* param = message->value.as_array.values[0];
+	Dart_Port replyPortId = param->value.as_send_port.id;
+
+	param = message->value.as_array.values[2];
+	int64_t statement = param->value.as_int64;
+	sqlite3_stmt *statementHandle = (sqlite3_stmt *)statement;
+
+	param = message->value.as_array.values[3];
+	int64_t index = param->value.as_int64;
+
+	param = message->value.as_array.values[4];
+	int64_t value = param->value.as_int64;
+	printf("%lld\n", value);
+
+	int error = sqlite3_bind_int64(statementHandle, index, value);
+
+	if (error == SQLITE_OK) {
+		result->type = Dart_CObject_kNull;
+	}
+	else {
+		//mountException(result, (const cstring)sqlite3_errmsg(db));
+		mountException(result, (const cstring)sqlite3_errstr(error));
+	}
+}
+
+void sqlite3_bind_double_wrapper(Dart_CObject* message, Dart_CObject* result) {
+	Dart_CObject* param = message->value.as_array.values[0];
+	Dart_Port replyPortId = param->value.as_send_port.id;
+
+	param = message->value.as_array.values[2];
+	int64_t statement = param->value.as_int64;
+	sqlite3_stmt *statementHandle = (sqlite3_stmt *)statement;
+
+	param = message->value.as_array.values[3];
+	int64_t index = param->value.as_int64;
+
+	param = message->value.as_array.values[4];
+	double value = param->value.as_double;
+	printf("%lf\n", value);
+
+	int error = sqlite3_bind_double(statementHandle, index, value);
+
+	if (error == SQLITE_OK) {
+		result->type = Dart_CObject_kNull;
+	}
+	else {
+		//mountException(result, (const cstring)sqlite3_errmsg(db));
+		mountException(result, (const cstring)sqlite3_errstr(error));
+	}
+}
+
+void sqlite3_bind_text_wrapper(Dart_CObject* message, Dart_CObject* result) {
+	Dart_CObject* param = message->value.as_array.values[0];
+	Dart_Port replyPortId = param->value.as_send_port.id;
+
+	param = message->value.as_array.values[2];
+	int64_t statement = param->value.as_int64;
+	sqlite3_stmt *statementHandle = (sqlite3_stmt *)statement;
+
+	param = message->value.as_array.values[3];
+	int64_t index = param->value.as_int64;
+
+	param = message->value.as_array.values[4];
+	const cstring value = (const cstring)param->value.as_string;
+
+	printf("%s\n", value);
+
+	int error = sqlite3_bind_text(statementHandle, index, value, -1, NULL);
+
+	if (error == SQLITE_OK) {
+		result->type = Dart_CObject_kNull;
+	}
+	else {
+		//mountException(result, (const cstring)sqlite3_errmsg(db));
+		mountException(result, (const cstring)sqlite3_errstr(error));
+	}
+}
+
 const WrapperFunction wrappersFunctionsList[] = {
 	{ "sqlite3_open_wrapper", sqlite3_open_wrapper},
 	{ "sqlite3_close_wrapper", sqlite3_close_wrapper},
 	{ "sqlite3_exec_wrapper", sqlite3_exec_wrapper},
 	{ "sqlite3_table_exists", sqlite3_table_exists},
+	{ "sqlite3_prepare_v2_wrapper", sqlite3_prepare_v2_wrapper},
+	{ "sqlite3_step_wrapper", sqlite3_step_wrapper },
+	{ "sqlite3_finalize_wrapper", sqlite3_finalize_wrapper },
+	{ "sqlite3_bind_int_wrapper", sqlite3_bind_int_wrapper },
+	{ "sqlite3_bind_int64_wrapper", sqlite3_bind_int64_wrapper },
+	{ "sqlite3_bind_double_wrapper", sqlite3_bind_double_wrapper },
+	{ "sqlite3_bind_text_wrapper", sqlite3_bind_text_wrapper },
 	{ NULL, NULL }
 };
 

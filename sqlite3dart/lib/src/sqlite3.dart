@@ -42,13 +42,13 @@ Future<int> sqlite3_open(String filename) {
 /// Close a database connection.
 /// See [https://sqlite.org/c3ref/close.html]
 ///
-Future<void> sqlite3_close(int handler) {
+Future<void> sqlite3_close(int handle) {
   var completer = new Completer<int>();
   var replyPort = new RawReceivePort();
   var args = new List(3);
   args[0] = replyPort.sendPort;
   args[1] = 'sqlite3_close_wrapper';
-  args[2] = handler;
+  args[2] = handle;
   get_receive_port().send(args);
   replyPort.handler = (result) {
     replyPort.close();
@@ -65,31 +65,26 @@ Future<void> sqlite3_close(int handler) {
 /// One-step query execution method.
 /// See [https://sqlite.org/c3ref/exec.html]
 ///
-Stream<SqliteRow> sqlite3_exec(int handler, String sql) {
+Stream<SqliteRow> sqlite3_exec(int handle, String sql) {
   var controller = StreamController<SqliteRow>();
   var replyPort = new RawReceivePort();
   var args = new List();
   args.insert(0, replyPort.sendPort);
   args.insert(1, 'sqlite3_exec_wrapper');
-  args.insert(2, handler);
+  args.insert(2, handle);
   args.insert(3, sql);
   get_receive_port().send(args);
   replyPort.handler = (result) {
-    if( result is int ) {
-      //stdout.write('\nlinha $result: ');
-    }
-    else if(result is String) {
+    if(result is String) {
       if(isException(result)) {
         replyPort.close();
         controller.addError(new SqliteException(result.substring(10)));
         return;
       }
-      //stdout.write('$result');
       SqliteRow row = parseExecRow(result);
       controller.add(row);
     }
     else if( result == null ) {
-      //controller.add(str);
       replyPort.close();
       controller.close();
     }
@@ -97,13 +92,16 @@ Stream<SqliteRow> sqlite3_exec(int handler, String sql) {
   return controller.stream;
 }
 
-Future<bool> sqlite3_table_exists(int handler, String tableName) {
+///
+/// Convenient method to check if table exists.
+///
+Future<bool> sqlite3_table_exists(int handle, String tableName) {
   var completer = new Completer<bool>();
   var replyPort = new RawReceivePort();
   var args = new List();
   args.insert(0, replyPort.sendPort);
   args.insert(1, 'sqlite3_table_exists');
-  args.insert(2, handler);
+  args.insert(2, handle);
   args.insert(3, tableName );
   get_receive_port().send(args);
   replyPort.handler = (result) {
@@ -117,3 +115,166 @@ Future<bool> sqlite3_table_exists(int handler, String tableName) {
   return completer.future;
 }
 
+///
+/// TODO
+///
+Future<int> sqlite3_prepare_v2(int handle, String sqlStatement) {
+  var completer = new Completer<int>();
+  var replyPort = new RawReceivePort();
+  var args = new List();
+  args.insert(0, replyPort.sendPort);
+  args.insert(1, 'sqlite3_prepare_v2_wrapper');
+  args.insert(2, handle);
+  args.insert(3, sqlStatement );
+  get_receive_port().send(args);
+  replyPort.handler = (result) {
+    replyPort.close();
+    if( result is String ) {
+      completeIfException(completer, result);
+    }
+    else
+      completer.complete(result);
+  };
+  return completer.future;
+}
+
+///
+/// TODO
+///
+Future<void> sqlite3_step(int statement) {
+  var completer = new Completer<int>();
+  var replyPort = new RawReceivePort();
+  var args = new List();
+  args.insert(0, replyPort.sendPort);
+  args.insert(1, 'sqlite3_step_wrapper');
+  args.insert(2, statement);
+  get_receive_port().send(args);
+  replyPort.handler = (result) {
+    replyPort.close();
+    if( result is String ) {
+      completeIfException(completer, result);
+    }
+    else
+      completer.complete(result);
+  };
+  return completer.future;
+}
+
+///
+/// TODO
+///
+Future<void> sqlite3_finalize(int statement) {
+  var completer = new Completer<int>();
+  var replyPort = new RawReceivePort();
+  var args = new List();
+  args.insert(0, replyPort.sendPort);
+  args.insert(1, 'sqlite3_finalize_wrapper');
+  args.insert(2, statement);
+  get_receive_port().send(args);
+  replyPort.handler = (result) {
+    replyPort.close();
+    if( result is String ) {
+      completeIfException(completer, result);
+    }
+    else
+      completer.complete(result);
+  };
+  return completer.future;
+}
+
+///
+/// TODO
+///
+Future<void> sqlite3_bind_int(int statement, int index, int value) {
+  var completer = new Completer<int>();
+  var replyPort = new RawReceivePort();
+  var args = new List();
+  args.insert(0, replyPort.sendPort);
+  args.insert(1, 'sqlite3_bind_int_wrapper');
+  args.insert(2, statement);
+  args.insert(3, index);
+  args.insert(4, value);
+  get_receive_port().send(args);
+  replyPort.handler = (result) {
+    replyPort.close();
+    if( result is String ) {
+      completeIfException(completer, result);
+    }
+    else
+      completer.complete(result);
+  };
+  return completer.future;
+}
+
+///
+/// TODO
+///
+Future<void> sqlite3_bind_int64(int statement, int index, int value) {
+  var completer = new Completer<int>();
+  var replyPort = new RawReceivePort();
+  var args = new List();
+  args.insert(0, replyPort.sendPort);
+  args.insert(1, 'sqlite3_bind_int64_wrapper');
+  args.insert(2, statement);
+  args.insert(3, index);
+  args.insert(4, value);
+  get_receive_port().send(args);
+  replyPort.handler = (result) {
+    replyPort.close();
+    if( result is String ) {
+      completeIfException(completer, result);
+    }
+    else
+      completer.complete(result);
+  };
+  return completer.future;
+}
+
+///
+/// TODO
+///
+Future<void> sqlite3_bind_double(int statement, int index, double value) {
+  var completer = new Completer<int>();
+  var replyPort = new RawReceivePort();
+  var args = new List();
+  args.insert(0, replyPort.sendPort);
+  args.insert(1, 'sqlite3_bind_double_wrapper');
+  args.insert(2, statement);
+  args.insert(3, index);
+  args.insert(4, value);
+  get_receive_port().send(args);
+  replyPort.handler = (result) {
+    replyPort.close();
+    if( result is String ) {
+      completeIfException(completer, result);
+    }
+    else
+      completer.complete(result);
+  };
+  return completer.future;
+}
+
+
+///
+/// TODO
+///
+Future<void> sqlite3_bind_text(int statement, int index, String value) {
+  var completer = new Completer<int>();
+  var replyPort = new RawReceivePort();
+  var args = new List();
+  args.insert(0, replyPort.sendPort);
+  args.insert(1, 'sqlite3_bind_text_wrapper');
+  args.insert(2, statement);
+  args.insert(3, index);
+  args.insert(4, value);
+  get_receive_port().send(args);
+  replyPort.handler = (result) {
+    replyPort.close();
+    if( result is String ) {
+      completeIfException(completer, result);
+    }
+    else
+      completer.complete(result);
+  };
+  return completer.future;
+}

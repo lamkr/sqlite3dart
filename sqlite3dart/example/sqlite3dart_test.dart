@@ -19,7 +19,7 @@ const int ROWCOUNT = 10;
 
 void main() async
 {
-  test("test boolean data type", () {
+/*  test("test boolean data type", () {
     Assert( new SqliteBoolean(true).value );
     Assert( new SqliteBoolean(false).value == false );
     Assert( new SqliteBoolean(null).value == null );
@@ -67,10 +67,25 @@ void main() async
   await test("sqlite_exec: creates table", () async {
     String filepath = './database.db', tableName = 'myTable';
     int handler = await sqlite3_open(filepath);
+
     String sql = 'create table $tableName (id int, name text)';
-    await sqlite3_exec(handler, sql);
+    await sqlite3_exec(handler, sql).drain();
+
     bool tableExists = await sqlite3_table_exists(handler, tableName);
     Assert( tableExists );
+    await sqlite3_close(handler);
+    deleteFile(filepath);
+  } );
+
+  await test("sqlite_exec: check table that not exists", () async {
+    String filepath = './database.db', tableName = 'myTable';
+    int handler = await sqlite3_open(filepath);
+
+    String sql = 'create table $tableName (id int, name text)';
+    await sqlite3_exec(handler, sql).drain();
+
+    bool tableExists = await sqlite3_table_exists(handler, 'myOtherTable');
+    Assert( !tableExists );
     await sqlite3_close(handler);
     deleteFile(filepath);
   } );
@@ -86,25 +101,18 @@ void main() async
 
     sql = 'create table $tableName (id int, name text)';
     await sqlite3_exec(handler, sql).drain();
-    /*
-    stream = sqlite3_exec(handler, sql);
-    await for (var result in stream)
-    {}*/
 
     sql = "";
     for( int i = 0; i < ROWCOUNT; i++ ) {
       sql += "insert into myTable values ($i, 'test_6: It is the row $i');";
     }
     await sqlite3_exec(handler, sql).drain();
-    /*
-    stream = sqlite3_exec(handler, sql);
-    await for (var result in stream)
-    {}*/
 
     sql = "select * from myTable";
     int rowCount = 0;
     stream = sqlite3_exec(handler, sql);
     await for (SqliteRow sqliteRow in stream) {
+      print(sqliteRow);
       rowCount++;
     }
 
@@ -124,20 +132,12 @@ void main() async
 
     sql = 'create table $tableName (id int, name text)';
     await sqlite3_exec(handler, sql).drain();
-    /*stream = sqlite3_exec(handler, sql);
-    await for (var result in stream) {
-      print('test_7 sqlite3_exec: create table= $result');
-    }*/
 
     sql = "";
     for( int i = 0; i < ROWCOUNT; i++ ) {
       sql += "insert into myTable values ($i, 'test_6: It is the row $i');";
     }
     await sqlite3_exec(handler, sql).drain();
-    /*stream = sqlite3_exec(handler, sql);
-    await for (var result in stream) {
-      print('test_7 sqlite3_exec: inserts= $result');
-    }*/
 
     int rowCount = 0;
     sql = "select count(*) from myTable";
@@ -150,7 +150,38 @@ void main() async
 
     deleteFile(filepath);
     Assert(rowCount == ROWCOUNT);
-  } );
+  } );*/
 
+  await test("sqlite_prepare_v2: insert row", () async {
+    String sql;
+    String filepath = './database.db', tableName = 'myTable';
+
+    int handle = await sqlite3_open(filepath);
+
+    sql = 'create table $tableName (id int, name text, age integer, height real)';
+    await sqlite3_exec(handle, sql).drain();
+
+    sql = "insert into myTable values (?, ?, ?, ?)";
+    int statement = await sqlite3_prepare_v2(handle, sql);
+
+    print('statement  = $statement');
+
+    await sqlite3_bind_int(statement, 1, 1234567890);
+
+    await sqlite3_bind_text(statement, 2, 'John Smith');
+
+    await sqlite3_bind_int(statement, 3, 32);
+
+    await sqlite3_bind_double(statement, 4, 1.81);
+
+    await sqlite3_step(statement);
+
+    await sqlite3_finalize(statement);
+
+    await sqlite3_close(handle);
+
+    deleteFile(filepath);
+    Assert(statement > 0);
+  } );
 }
 

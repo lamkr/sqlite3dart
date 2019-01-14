@@ -7,7 +7,6 @@
 import 'dart:async';
 
 import 'SqliteRow.dart';
-import 'SqliteText.dart';
 
 import 'SqliteException.dart';
 
