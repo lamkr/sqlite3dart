@@ -193,14 +193,6 @@ void sqlite3_table_exists(Dart_CObject* message, Dart_CObject* result) {
 	}
 }
 
-/*
-int sqlite3_prepare_v2(
-  sqlite3 *db,            // Database handle 
-const char *zSql,       // SQL statement, UTF-8 encoded 
-int nByte,              // Maximum length of zSql in bytes. 
-sqlite3_stmt **ppStmt,  // OUT: Statement handle 
-const char **pzTail     // OUT: Pointer to unused portion of zSql 
-); */
 void sqlite3_prepare_v2_wrapper(Dart_CObject* message, Dart_CObject* result) {
 	Dart_CObject* paramReplyPortId = message->value.as_array.values[0];
 	Dart_Port replyPortId = paramReplyPortId->value.as_send_port.id;
@@ -219,7 +211,7 @@ void sqlite3_prepare_v2_wrapper(Dart_CObject* message, Dart_CObject* result) {
 	
 	int maxLength = -1;
 	sqlite3_stmt *statementHandle = NULL;
-	const cstring unusedSqlStatement = NULL;
+	const char* unusedSqlStatement = NULL;
 	int error = sqlite3_prepare_v2(db, sqlStatement, maxLength, &statementHandle, &unusedSqlStatement);
 	if (error == SQLITE_OK) {
 		result->type = Dart_CObject_kInt64;
@@ -242,10 +234,34 @@ void sqlite3_step_wrapper(Dart_CObject* message, Dart_CObject* result) {
 
 	int error = sqlite3_step(statementHandle);
 
+	if (error == SQLITE_DONE) {
+		result->type = Dart_CObject_kNull;
+	}
+	else if( error == SQLITE_ERROR ) {
+		//mountException(result, (const cstring)sqlite3_errmsg(db));
+		mountException(result, (const cstring)sqlite3_errstr(error));
+	}
+	else {
+		result->type = Dart_CObject_kInt32;
+		result->value.as_int32 = (int32_t)error;
+	}
+}
+
+void sqlite3_reset_wrapper(Dart_CObject* message, Dart_CObject* result) {
+	Dart_CObject* param = message->value.as_array.values[0];
+	Dart_Port replyPortId = param->value.as_send_port.id;
+
+	param = message->value.as_array.values[2];
+	int64_t statement = param->value.as_int64;
+
+	sqlite3_stmt *statementHandle = (sqlite3_stmt *)statement;
+
+	int error = sqlite3_reset(statementHandle);
+
 	if (error == SQLITE_OK) {
 		result->type = Dart_CObject_kNull;
 	}
-	else {
+	else  {
 		//mountException(result, (const cstring)sqlite3_errmsg(db));
 		mountException(result, (const cstring)sqlite3_errstr(error));
 	}
@@ -280,11 +296,10 @@ void sqlite3_bind_int_wrapper(Dart_CObject* message, Dart_CObject* result) {
 	sqlite3_stmt *statementHandle = (sqlite3_stmt *)statement;
 
 	param = message->value.as_array.values[3];
-	int64_t index = param->value.as_int64;
+	int32_t index = param->value.as_int32;
 
 	param = message->value.as_array.values[4];
 	int32_t value = param->value.as_int32;
-	printf("%d\n", value);
 
 	int error = sqlite3_bind_int(statementHandle, index, value);
 
@@ -306,11 +321,10 @@ void sqlite3_bind_int64_wrapper(Dart_CObject* message, Dart_CObject* result) {
 	sqlite3_stmt *statementHandle = (sqlite3_stmt *)statement;
 
 	param = message->value.as_array.values[3];
-	int64_t index = param->value.as_int64;
+	int32_t index = param->value.as_int32;
 
 	param = message->value.as_array.values[4];
 	int64_t value = param->value.as_int64;
-	printf("%lld\n", value);
 
 	int error = sqlite3_bind_int64(statementHandle, index, value);
 
@@ -332,11 +346,10 @@ void sqlite3_bind_double_wrapper(Dart_CObject* message, Dart_CObject* result) {
 	sqlite3_stmt *statementHandle = (sqlite3_stmt *)statement;
 
 	param = message->value.as_array.values[3];
-	int64_t index = param->value.as_int64;
+	int32_t index = param->value.as_int32;
 
 	param = message->value.as_array.values[4];
 	double value = param->value.as_double;
-	printf("%lf\n", value);
 
 	int error = sqlite3_bind_double(statementHandle, index, value);
 
@@ -358,12 +371,10 @@ void sqlite3_bind_text_wrapper(Dart_CObject* message, Dart_CObject* result) {
 	sqlite3_stmt *statementHandle = (sqlite3_stmt *)statement;
 
 	param = message->value.as_array.values[3];
-	int64_t index = param->value.as_int64;
+	int32_t index = param->value.as_int32;
 
 	param = message->value.as_array.values[4];
 	const cstring value = (const cstring)param->value.as_string;
-
-	printf("%s\n", value);
 
 	int error = sqlite3_bind_text(statementHandle, index, value, -1, NULL);
 
@@ -376,6 +387,23 @@ void sqlite3_bind_text_wrapper(Dart_CObject* message, Dart_CObject* result) {
 	}
 }
 
+void sqlite3_column_text_wrapper(Dart_CObject* message, Dart_CObject* result) {
+	Dart_CObject* param = message->value.as_array.values[0];
+	Dart_Port replyPortId = param->value.as_send_port.id;
+
+	param = message->value.as_array.values[2];
+	int64_t statement = param->value.as_int64;
+	sqlite3_stmt *statementHandle = (sqlite3_stmt *)statement;
+
+	param = message->value.as_array.values[3];
+	int32_t index = param->value.as_int32;
+	
+	const unsigned char* value = sqlite3_column_text(statementHandle, index);
+
+	result->type = Dart_CObject_kString;
+	result->value.as_string = value;
+}
+
 const WrapperFunction wrappersFunctionsList[] = {
 	{ "sqlite3_open_wrapper", sqlite3_open_wrapper},
 	{ "sqlite3_close_wrapper", sqlite3_close_wrapper},
@@ -383,11 +411,13 @@ const WrapperFunction wrappersFunctionsList[] = {
 	{ "sqlite3_table_exists", sqlite3_table_exists},
 	{ "sqlite3_prepare_v2_wrapper", sqlite3_prepare_v2_wrapper},
 	{ "sqlite3_step_wrapper", sqlite3_step_wrapper },
+	{ "sqlite3_reset_wrapper", sqlite3_reset_wrapper },
 	{ "sqlite3_finalize_wrapper", sqlite3_finalize_wrapper },
 	{ "sqlite3_bind_int_wrapper", sqlite3_bind_int_wrapper },
 	{ "sqlite3_bind_int64_wrapper", sqlite3_bind_int64_wrapper },
 	{ "sqlite3_bind_double_wrapper", sqlite3_bind_double_wrapper },
 	{ "sqlite3_bind_text_wrapper", sqlite3_bind_text_wrapper },
+	{ "sqlite3_column_text_wrapper", sqlite3_column_text_wrapper },
 	{ NULL, NULL }
 };
 

@@ -141,12 +141,34 @@ Future<int> sqlite3_prepare_v2(int handle, String sqlStatement) {
 ///
 /// TODO
 ///
-Future<void> sqlite3_step(int statement) {
+Future<int> sqlite3_step(int statement) {
   var completer = new Completer<int>();
   var replyPort = new RawReceivePort();
   var args = new List();
   args.insert(0, replyPort.sendPort);
   args.insert(1, 'sqlite3_step_wrapper');
+  args.insert(2, statement);
+  get_receive_port().send(args);
+  replyPort.handler = (result) {
+    replyPort.close();
+    if( result is String ) {
+      completeIfException(completer, result);
+    }
+    else
+      completer.complete(result);
+  };
+  return completer.future;
+}
+
+///
+/// TODO
+///
+Future<int> sqlite3_reset(int statement) {
+  var completer = new Completer<int>();
+  var replyPort = new RawReceivePort();
+  var args = new List();
+  args.insert(0, replyPort.sendPort);
+  args.insert(1, 'sqlite3_reset_wrapper');
   args.insert(2, statement);
   get_receive_port().send(args);
   replyPort.handler = (result) {
@@ -254,7 +276,6 @@ Future<void> sqlite3_bind_double(int statement, int index, double value) {
   return completer.future;
 }
 
-
 ///
 /// TODO
 ///
@@ -275,6 +296,25 @@ Future<void> sqlite3_bind_text(int statement, int index, String value) {
     }
     else
       completer.complete(result);
+  };
+  return completer.future;
+}
+
+///
+/// TODO
+///
+Future<String> sqlite3_column_text(int statement, int index) {
+  var completer = new Completer<String>();
+  var replyPort = new RawReceivePort();
+  var args = new List();
+  args.insert(0, replyPort.sendPort);
+  args.insert(1, 'sqlite3_column_text_wrapper');
+  args.insert(2, statement);
+  args.insert(3, index);
+  get_receive_port().send(args);
+  replyPort.handler = (result) {
+    replyPort.close();
+    completer.complete(result);
   };
   return completer.future;
 }
