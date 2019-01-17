@@ -93,29 +93,6 @@ Stream<SqliteRow> sqlite3_exec(int handle, String sql) {
 }
 
 ///
-/// Convenient method to check if table exists.
-///
-Future<bool> sqlite3_table_exists(int handle, String tableName) {
-  var completer = new Completer<bool>();
-  var replyPort = new RawReceivePort();
-  var args = new List();
-  args.insert(0, replyPort.sendPort);
-  args.insert(1, 'sqlite3_table_exists');
-  args.insert(2, handle);
-  args.insert(3, tableName );
-  get_receive_port().send(args);
-  replyPort.handler = (result) {
-    replyPort.close();
-    if( result is String ) {
-      completeIfException(completer, result);
-    }
-    else
-      completer.complete(result);
-  };
-  return completer.future;
-}
-
-///
 /// TODO
 ///
 Future<int> sqlite3_prepare_v2(int handle, String sqlStatement) {

@@ -11,6 +11,7 @@ import 'dart:isolate';
 import 'dart-ext:sqlite3dart_extension';
 
 export 'src/sqlite3.dart';
+export 'src/sqlite3_convenience.dart';
 export 'src/SqliteException.dart';
 
 //export 'src/repository_core.dart';

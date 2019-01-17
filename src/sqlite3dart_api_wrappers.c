@@ -401,7 +401,87 @@ void sqlite3_column_text_wrapper(Dart_CObject* message, Dart_CObject* result) {
 	const unsigned char* value = sqlite3_column_text(statementHandle, index);
 
 	result->type = Dart_CObject_kString;
-	result->value.as_string = value;
+	result->value.as_string = (char*) value;
+}
+
+void sqlite3_begin_transaction(Dart_CObject* message, Dart_CObject* result) {
+	Dart_CObject* param = message->value.as_array.values[0];
+	Dart_Port replyPortId = param->value.as_send_port.id;
+
+	param = message->value.as_array.values[2];
+	int64_t address = param->value.as_int64;
+	if (isInvalidHandle(address)) {
+		mountException(result, ERR_INVALID_HANDLE);
+		return;
+	}
+	sqlite3 *db = (sqlite3 *)address;
+
+	param = message->value.as_array.values[3];
+	const char* transactionType = param->value.as_string;
+
+	cstring zErrMsg = NULL;
+	char sql[64];
+	sprintf_s(sql, sizeof(sql), "begin %s transaction", transactionType);
+
+	int error = sqlite3_exec(db, sql, NULL, NULL, NULL);
+
+	if (error == SQLITE_OK) {
+		result->type = Dart_CObject_kNull;
+	}
+	else {
+		mountException(result, zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+}
+
+void sqlite3_commit_transaction(Dart_CObject* message, Dart_CObject* result) {
+	Dart_CObject* param = message->value.as_array.values[0];
+	Dart_Port replyPortId = param->value.as_send_port.id;
+
+	param = message->value.as_array.values[2];
+	int64_t address = param->value.as_int64;
+	if (isInvalidHandle(address)) {
+		mountException(result, ERR_INVALID_HANDLE);
+		return;
+	}
+	sqlite3 *db = (sqlite3 *)address;
+
+	int error = sqlite3_exec(db, "commit", NULL, NULL, NULL);
+
+	if (error == SQLITE_OK) {
+		result->type = Dart_CObject_kNull;
+	}
+	else {
+		cstring zErrMsg = NULL;
+		mountException(result, zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+}
+
+
+// TODO missing parameters. See https://www.sqlite.org/lang_transaction.html
+void sqlite3_rollback_transaction(Dart_CObject* message, Dart_CObject* result) {
+	Dart_CObject* param = message->value.as_array.values[0];
+	Dart_Port replyPortId = param->value.as_send_port.id;
+
+	param = message->value.as_array.values[2];
+	int64_t address = param->value.as_int64;
+	if (isInvalidHandle(address)) {
+		mountException(result, ERR_INVALID_HANDLE);
+		return;
+	}
+	sqlite3 *db = (sqlite3 *)address;
+
+	int error = sqlite3_exec(db, "rollback transaction", NULL, NULL, NULL);
+
+	if (error == SQLITE_OK) {
+		result->type = Dart_CObject_kNull;
+	}
+	else {
+		cstring zErrMsg = NULL;
+		mountException(result, zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
 }
 
 const WrapperFunction wrappersFunctionsList[] = {
@@ -418,6 +498,9 @@ const WrapperFunction wrappersFunctionsList[] = {
 	{ "sqlite3_bind_double_wrapper", sqlite3_bind_double_wrapper },
 	{ "sqlite3_bind_text_wrapper", sqlite3_bind_text_wrapper },
 	{ "sqlite3_column_text_wrapper", sqlite3_column_text_wrapper },
+	{ "sqlite3_begin_transaction", sqlite3_begin_transaction },
+	{ "sqlite3_commit_transaction", sqlite3_commit_transaction },
+	{ "sqlite3_rollback_transaction", sqlite3_rollback_transaction },
 	{ NULL, NULL }
 };
 
