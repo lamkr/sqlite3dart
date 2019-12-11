@@ -16,6 +16,7 @@ x64/
 *.vcxproj.user
 CMakeCache.txt
 CMakeScripts
+CMakeSettings.json
 Testing
 Makefile
 cmake_install.cmake
