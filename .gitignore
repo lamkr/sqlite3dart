@@ -6,8 +6,15 @@ sqlite3dart/.packages
 sqlite3dart/example/sqlite3dart_extension.dll
 sqlite3dart/pubspec.lock
 build/
+CMakeFiles/
+Debug/
+sqlite3dart_extension.dir/
+x64/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
 CMakeCache.txt
-CMakeFiles
 CMakeScripts
 Testing
 Makefile
