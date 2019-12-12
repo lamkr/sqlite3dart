@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <time.h> 
 #include <stdio.h>
+#include <inttypes.h>
 #include "sqlite3dart_api.h"
 #include "sqlite3dart_api_async.h"
 #include "include/dart_api.h"
@@ -19,7 +20,7 @@ Function asyncFunctionsList[] = {
 };
 
 void sqlite3_open_async( Dart_Port destPortId, Dart_CObject* message ) {
-	printf("sqlite3_open_async: destPortId=%lld\n", destPortId);
+	printf("sqlite3_open_async: destPortId=%" PRId64 "\n", destPortId);
 
 	Dart_Port reply_port_id = ILLEGAL_PORT;
 
@@ -36,7 +37,7 @@ void sqlite3_open_async( Dart_Port destPortId, Dart_CObject* message ) {
 
 	puts("2");
 	Dart_Port replyPortId  = param0->value.as_send_port.id;
-	printf("p0=%lld\n", replyPortId);
+	printf("p0=%" PRId64 "\n", replyPortId);
 
 	cstring filename = NULL;
 	if(param1->type != Dart_CObject_kNull)
@@ -82,7 +83,7 @@ void sqlite3_open_async_(Dart_NativeArguments arguments) {
 	Dart_EnterScope();
 	Dart_SetReturnValue(arguments, Dart_Null());
 	Dart_Port servicePort = Dart_NewNativePort("sqlite3_open_async", sqlite3_open_async, true);
-	printf("sqlite3_open_async_: destPortId=%lld\n", servicePort);
+	printf("sqlite3_open_async_: destPortId=%" PRId64 "\n", servicePort);
 	if (servicePort != ILLEGAL_PORT) {
 		Dart_Handle sendPort = Dart_NewSendPort(servicePort);
 		Dart_SetReturnValue(arguments, sendPort);
