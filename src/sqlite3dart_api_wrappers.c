@@ -39,7 +39,7 @@ bool isInvalidHandle(int64_t address) {
 
 void mountException(Dart_CObject* result, const cstring message) {
 	new_dynp(&_dynpointers[0], strlen("Exception:") + strlen(message) + 1);
-	sprintf_s(_dynpointers[0].pointer, _dynpointers[0].size, "Exception:%s", message);
+	snprintf(_dynpointers[0].pointer, _dynpointers[0].size, "Exception:%s", message);
 	result->type = Dart_CObject_kString;
 	result->value.as_string = _dynpointers[0].pointer;
 }
@@ -96,12 +96,12 @@ int sqlite3_exec_callback2(pointer parameter, int argc, cstring *argv, cstring *
 
 	// Start string with index of the line.
 	++_execRowIndex;
-	sprintf_s(_dynpointers[0].pointer, _dynpointers[0].size, "%llu,", _execRowIndex);
+	snprintf(_dynpointers[0].pointer, _dynpointers[0].size, "%llu,", _execRowIndex);
 
 	char strSize[32];
 	for (int colIndex = 0; colIndex < argc; colIndex++) {
 		columnValueLength = strlen(argv[colIndex]);
-		sprintf_s(strSize, sizeof(strSize), "%llu", columnValueLength);
+		snprintf(strSize, sizeof(strSize), "%llu", columnValueLength);
 		strcat_s(_dynpointers[0].pointer, _dynpointers[0].size, column[colIndex]);
 		strcat_s(_dynpointers[0].pointer, _dynpointers[0].size, "=");
 		strcat_s(_dynpointers[0].pointer, _dynpointers[0].size, strSize);
@@ -179,7 +179,7 @@ void sqlite3_table_exists(Dart_CObject* message, Dart_CObject* result) {
 	Dart_CObject* param3 = message->value.as_array.values[3];
 	const cstring tableName = (const cstring)param3->value.as_string;
 
-	sprintf_s(_dynpointers[0].pointer, _dynpointers[0].size, "select name from sqlite_master where type = 'table'");
+	snprintf(_dynpointers[0].pointer, _dynpointers[0].size, "select name from sqlite_master where type = 'table'");
 
 	cstring zErrMsg = NULL;
 	CallbackParameter parameter = { replyPortId, tableName };
@@ -421,7 +421,7 @@ void sqlite3_begin_transaction(Dart_CObject* message, Dart_CObject* result) {
 
 	cstring zErrMsg = NULL;
 	char sql[64];
-	sprintf_s(sql, sizeof(sql), "begin %s transaction", transactionType);
+	snprintf(sql, sizeof(sql), "begin %s transaction", transactionType);
 
 	int error = sqlite3_exec(db, sql, NULL, NULL, NULL);
 
