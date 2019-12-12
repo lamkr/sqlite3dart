@@ -103,14 +103,27 @@ int sqlite3_exec_callback2(pointer parameter, int argc, cstring *argv, cstring *
 	for (int colIndex = 0; colIndex < argc; colIndex++) {
 		columnValueLength = strlen(argv[colIndex]);
 		snprintf(strSize, sizeof(strSize), "%" PRIu64, columnValueLength);
+#ifdef WIN32
 		strcat_s(_dynpointers[0].pointer, _dynpointers[0].size, column[colIndex]);
 		strcat_s(_dynpointers[0].pointer, _dynpointers[0].size, "=");
 		strcat_s(_dynpointers[0].pointer, _dynpointers[0].size, strSize);
 		strcat_s(_dynpointers[0].pointer, _dynpointers[0].size, ":");
 		strcat_s(_dynpointers[0].pointer, _dynpointers[0].size, argv[colIndex]);
 		strcat_s(_dynpointers[0].pointer, _dynpointers[0].size, ",");
+#else
+		strcat(_dynpointers[0].pointer, column[colIndex]);
+		strcat(_dynpointers[0].pointer, "=");
+		strcat(_dynpointers[0].pointer, strSize);
+		strcat(_dynpointers[0].pointer, ":");
+		strcat(_dynpointers[0].pointer, argv[colIndex]);
+		strcat(_dynpointers[0].pointer, ",");
+#endif
 	}
+#ifdef WIN32
 	strcat_s(_dynpointers[0].pointer, _dynpointers[0].size, "\n");
+#else
+	strcat(_dynpointers[0].pointer, "\n");
+#endif
 
 	Dart_CObject row;
 	row.type = Dart_CObject_kString;
@@ -178,7 +191,7 @@ void sqlite3_table_exists(Dart_CObject* message, Dart_CObject* result) {
 	sqlite3 *db = (sqlite3 *)address;
 
 	Dart_CObject* param3 = message->value.as_array.values[3];
-	const cstring tableName = (const cstring)param3->value.as_string;
+	cstring tableName = (cstring)param3->value.as_string;
 
 	snprintf(_dynpointers[0].pointer, _dynpointers[0].size, "select name from sqlite_master where type = 'table'");
 

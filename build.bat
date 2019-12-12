@@ -1,5 +1,19 @@
+::
+:: Use this script to facilitate the package building. 
+::
+:: At terminal, goes to the sources main directory, and run this script.
+:: Syntax:
+:: 	build [<parameter>]
+:: Where <parameter> can be:
+::	rm 		- Remove old builded files before building the package; after, it runs "dart" (see below).
+::  dart 	- Only runs the Dart test at directory 'sqlite3dart/example'.
+::
+::  If <parameter> is not present, the script build the package and runs the Dart test.
+::
+
 @echo off
 set arg1=%1
+
 
 :: https://stackoverflow.com/questions/44638166/how-to-remove-last-segment-in-filepath-in-command-prompt
 :: Find Dart program on environment variable PATH

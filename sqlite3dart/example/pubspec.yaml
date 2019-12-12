@@ -1,0 +1,13 @@
+name: sqlite3dart_test
+description: Sample to test the sqlite3dart package.
+version: 1.0.0
+homepage: https://github.com/lamkr/sqlite3dart
+author: Luciano Rodrigues (Brodi) <lamkrodrigues@gmail.com>
+license: MIT
+copyright: 2019 (c) Luciano Rodrigues (Brodi) <lamkrodrigues@gmail.com>
+
+dependencies:
+    sqlite3dart:
+        version: ^0.0.1
+        path: ../
+        

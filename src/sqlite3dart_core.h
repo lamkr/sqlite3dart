@@ -18,11 +18,12 @@
 #endif
 
 #ifndef cstring
-typedef char* cstring;
+#define cstring char*
 #endif
 
 #ifndef pointer
-typedef void* pointer;
+typedef void* 			pointer;
+typedef const void* 	const_pointer;
 #endif
 
 typedef struct TFunction {
