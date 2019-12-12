@@ -17,7 +17,7 @@
 #define false 0
 #endif
 
-#ifndef string
+#ifndef cstring
 typedef char* cstring;
 #endif
 

@@ -38,7 +38,7 @@ Dart_NativeFunction resolveName(Dart_Handle name, int argc, bool* auto_setup_sco
 	}
 
 	Dart_EnterScope();
-	cstring cname;
+	const cstring cname;
 	handleError(Dart_StringToCString(name, &cname));
 
 	Dart_NativeFunction result = NULL;

@@ -29,7 +29,7 @@ sqlite3* getSqliteHandle(Dart_NativeArguments arguments) {
 
 const cstring getCString(Dart_NativeArguments arguments, int index) {
 	Dart_Handle stringHandle = handleError(Dart_GetNativeArgument(arguments, index));
-	cstring str = NULL;
+	const cstring str;
 	handleError(Dart_StringToCString(stringHandle, &str));
 	return (const cstring) str;
 }
