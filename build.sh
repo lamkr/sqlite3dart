@@ -40,10 +40,10 @@ function runDart ()
 	exit;
 }
 
-if [ $1 == "rm" ]
+if [ "$1" = "rm" ]
 then 
 	rm -rf ./build;
-elif [ $1 == "dart" ]
+elif [ "$1" = "dart" ]
 then
 	runDart
 	exit;
