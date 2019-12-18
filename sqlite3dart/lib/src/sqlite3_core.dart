@@ -47,8 +47,8 @@ String _parseName(String execRow, int startIndex, int equalIndex) {
 }
 
 int _parseSize(String execRow, int equalIndex ) {
-  int ddotIndex = execRow.indexOf(":", equalIndex);
-  return int.parse(execRow.substring(equalIndex+1, ddotIndex));
+  int dotIndex = execRow.indexOf(":", equalIndex);
+  return int.parse(execRow.substring(equalIndex+1, dotIndex));
 }
 
 String _parseValue(String execRow, int size, int equalIndex) {
