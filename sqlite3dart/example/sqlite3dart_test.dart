@@ -19,7 +19,7 @@ const int ROWCOUNT = 10;
 
 void main() async
 {
-/*  test("test boolean data type", () {
+  test("test boolean data type", () {
     Assert( new SqliteBoolean(true).value );
     Assert( new SqliteBoolean(false).value == false );
     Assert( new SqliteBoolean(null).value == null );
@@ -104,7 +104,7 @@ void main() async
 
     sql = "";
     for( int i = 0; i < ROWCOUNT; i++ ) {
-      sql += "insert into myTable values ($i, 'test_6: It is the row $i');";
+      sql += "insert into myTable values ($i, 'test: It is the row $i');";
     }
     await sqlite3_exec(handler, sql).drain();
 
@@ -122,7 +122,6 @@ void main() async
     Assert(rowCount == ROWCOUNT);
   } );
 
-
   await test("sqlite_exec: check count(*) == 10 inserted rows in table", () async {
     Stream stream;
     String sql;
@@ -135,7 +134,7 @@ void main() async
 
     sql = "";
     for( int i = 0; i < ROWCOUNT; i++ ) {
-      sql += "insert into myTable values ($i, 'test_6: It is the row $i');";
+      sql += "insert into myTable values ($i, 'test: It is the row $i');";
     }
     await sqlite3_exec(handler, sql).drain();
 
@@ -150,7 +149,7 @@ void main() async
 
     deleteFile(filepath);
     Assert(rowCount == ROWCOUNT);
-  } );*/
+  } );
 
   await test("sqlite_prepare_v2: insert row", () async {
     String sql;

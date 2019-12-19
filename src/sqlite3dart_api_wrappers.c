@@ -1,5 +1,4 @@
 // Copyright (c) 2018 Luciano Rodrigues (Brodi).
-// Copyright (c) 2018 Luciano Rodrigues (Brodi).
 // Please see the AUTHORS file for details. 
 // All rights reserved. Use of this source code is governed by a MIT-style 
 // license that can be found in the LICENSE file.
@@ -97,7 +96,7 @@ int sqlite3_exec_callback2(pointer parameter, int argc, cstring *argv, cstring *
 
 	// Start string with index of the line.
 	++_execRowIndex;
-	snprintf(_dynpointers[0].pointer, _dynpointers[0].size, "%" PRIu64, _execRowIndex);
+	snprintf(_dynpointers[0].pointer, _dynpointers[0].size, "%" PRIu64 ",", _execRowIndex);
 
 	char strSize[32];
 	for (int colIndex = 0; colIndex < argc; colIndex++) {
@@ -124,6 +123,8 @@ int sqlite3_exec_callback2(pointer parameter, int argc, cstring *argv, cstring *
 #else
 	strcat(_dynpointers[0].pointer, "\n");
 #endif
+
+	//to test// printf("%s", _dynpointers[0].pointer);
 
 	Dart_CObject row;
 	row.type = Dart_CObject_kString;
