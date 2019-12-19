@@ -44,6 +44,13 @@ void mountException(Dart_CObject* result, const cstring message) {
 	result->value.as_string = _dynpointers[0].pointer;
 }
 
+void sqlite3_libversion_wrapper(Dart_CObject* message, Dart_CObject* result) {
+	const unsigned char* value = sqlite3_libversion();
+
+	result->type = Dart_CObject_kString;
+	result->value.as_string = (char*)value;
+}
+
 void sqlite3_open_wrapper(Dart_CObject* message, Dart_CObject* result) {
 	Dart_CObject* param = message->value.as_array.values[2];
 	const cstring filename = param->value.as_string;
@@ -500,6 +507,7 @@ void sqlite3_rollback_transaction(Dart_CObject* message, Dart_CObject* result) {
 }
 
 const WrapperFunction wrappersFunctionsList[] = {
+	{ "sqlite3_libversion_wrapper", sqlite3_libversion_wrapper},
 	{ "sqlite3_open_wrapper", sqlite3_open_wrapper},
 	{ "sqlite3_close_wrapper", sqlite3_close_wrapper},
 	{ "sqlite3_exec_wrapper", sqlite3_exec_wrapper},

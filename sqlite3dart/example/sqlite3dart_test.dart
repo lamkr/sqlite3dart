@@ -26,6 +26,12 @@ void main() async
     Assert( new SqliteBoolean(null).isNull );
   });
 
+  await test("sqlite_libversion", () async {
+    String version = await sqlite3_libversion();
+    print(version);
+    Assert(version.length > 3);
+  } );
+
   await test("sqlite_open", () async {
     String filepath = './database.db';
     int handler = await sqlite3_open(filepath);

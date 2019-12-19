@@ -16,6 +16,23 @@ import 'SqliteException.dart';
 import 'sqlite3_core.dart';
 
 ///
+/// TODO
+///
+Future<String> sqlite3_libversion() {
+  var completer = new Completer<String>();
+  var replyPort = new RawReceivePort();
+  var args = new List();
+  args.insert(0, replyPort.sendPort);
+  args.insert(1, 'sqlite3_libversion_wrapper');
+  get_receive_port().send(args);
+  replyPort.handler = (result) {
+    replyPort.close();
+    completer.complete(result);
+  };
+  return completer.future;
+}
+
+///
 /// Open a new database connection.
 /// See [https://sqlite.org/c3ref/open.html]
 ///
