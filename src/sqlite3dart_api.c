@@ -50,7 +50,7 @@ void sqlite3_libversion_number_(Dart_NativeArguments arguments) {
 void sqlite3_open_(Dart_NativeArguments arguments) {
 	Dart_EnterScope();
 
-	const cstring filename = getCString(arguments, 0);
+	const cstring filename = get_cstring(arguments, 0);
 
 	Dart_Handle result;
 	sqlite3 *db;
@@ -73,7 +73,7 @@ void sqlite3_exec_(Dart_NativeArguments arguments) {
 	cstring errorMessage = NULL;
 
 	sqlite3* db = getSqliteHandle(arguments);
-	const cstring sql = getCString(arguments, 1);
+	const cstring sql = get_cstring(arguments, 1);
 
 	//TODO
 

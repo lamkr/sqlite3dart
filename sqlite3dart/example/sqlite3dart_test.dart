@@ -10,6 +10,8 @@
 /// $ dart -v sqlite3dart_test.dart
 ///
 import 'dart:async';
+import 'dart:math';
+import 'dart:typed_data';
 import 'sqlite3dart_core_for_test.dart';
 import 'package:sqlite3dart/sqlite3dart.dart';
 import 'package:sqlite3dart/src/SqliteBoolean.dart';
@@ -163,10 +165,10 @@ void main() async
 
     int handle = await sqlite3_open(filepath);
 
-    sql = 'create table $tableName (id int, name text, age integer, height real)';
+    sql = 'create table $tableName (id int, name text, age integer, height real, data blob)';
     await sqlite3_exec(handle, sql).drain();
 
-    sql = "insert into myTable values (?, ?, ?, ?)";
+    sql = "insert into myTable values (?, ?, ?, ?, ?)";
     int statement = await sqlite3_prepare_v2(handle, sql);
 
     print('statement  = $statement');
@@ -179,6 +181,9 @@ void main() async
 
     await sqlite3_bind_double(statement, 4, 1.81);
 
+    var blob = getBlob();
+    await sqlite3_bind_blob(statement, 5, blob, blob.length);
+
     await sqlite3_step(statement);
 
     await sqlite3_finalize(statement);
@@ -189,6 +194,68 @@ void main() async
     Assert(statement > 0);
   } );
 
+  await test("sqlite3_last_insert_rowid: get last id the inserted row", () async {
+    Stream stream;
+    String sql;
+    String filepath = './database.db', tableName = 'myTable';
+
+    int handler = await sqlite3_open(filepath);
+
+    sql = 'create table $tableName (id int, name text)';
+    await sqlite3_exec(handler, sql).drain();
+
+    sql = "";
+    for( int i = 0; i < ROWCOUNT; i++ ) {
+      sql += "insert into myTable values ($i, 'test: It is the row $i');";
+    }
+    await sqlite3_exec(handler, sql).drain();
+
+    int rowid = await sqlite3_last_insert_rowid(handler);
+    print(rowid);
+
+    await sqlite3_close(handler);
+
+    deleteFile(filepath);
+
+    Assert(rowid != 0);
+  } );
+
+  /* TODO await test("sqlite3_pragma: convenience function to execute 'PRAGMA' commands", () async {
+    Stream stream;
+    String sql;
+    String filepath = './database.db', tableName = 'myTable';
+
+    int handler = await sqlite3_open(filepath);
+
+    sql = 'create table $tableName (id int, name text)';
+    await sqlite3_exec(handler, sql).drain();
+
+    sql = "";
+    for( int i = 0; i < ROWCOUNT; i++ ) {
+      sql += "insert into myTable values ($i, 'test: It is the row $i');";
+    }
+    await sqlite3_exec(handler, sql).drain();
+
+    int rowid = await sqlite3_last_insert_rowid(handler);
+    print(rowid);
+
+    await sqlite3_close(handler);
+
+    deleteFile(filepath);
+
+    Assert(rowid != 0);
+  } );*/
 
 }
 
+Uint8List getBlob() {
+  var rnd = Random(DateTime.now().millisecondsSinceEpoch);
+  int size = 1024;
+  Uint8List list = Uint8List(size);
+  for( int i = 0; i < size; i++ ) {
+    list[i] = rnd.nextInt(256);
+  }
+  return list;
+}
+
+/// TOOO create two test that runs simultaneally and insert data on same database.

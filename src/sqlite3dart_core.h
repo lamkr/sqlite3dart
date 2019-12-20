@@ -26,6 +26,8 @@ typedef void* 			pointer;
 typedef const void* 	const_pointer;
 #endif
 
+#define INDEX_PARAM_DB_HANDLE	2
+
 typedef struct TFunction {
 	cstring name;
 	Dart_NativeFunction nativeFunction;
@@ -43,13 +45,17 @@ typedef struct TWrapperFunction {
 	NativeFunction nativeFunction;
 } WrapperFunction;
 
+bool isInvalidHandle(int64_t address);
+
 Dart_Handle handleError(Dart_Handle handle);
 
 Dart_Handle createException(const cstring message);
 
 sqlite3* getSqliteHandle(Dart_NativeArguments arguments);
 
-const cstring getCString(Dart_NativeArguments arguments, int index);
+const cstring get_cstring(Dart_NativeArguments arguments, int index);
+
+bool getDb(Dart_CObject* message, int index, sqlite3** db);
 
 int Sqlite3Callback(pointer a_param, int argc, cstring* argv, cstring* column);
 
@@ -62,5 +68,6 @@ bool isNotEmptyOrNull(const cstring str);
 DynamicPointer* new_dynp(DynamicPointer *dynpointer, size_t size);
 
 DynamicPointer* del_dynp(DynamicPointer *dynpointer);
+
 
 #endif

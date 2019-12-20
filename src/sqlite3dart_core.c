@@ -8,6 +8,16 @@
 #include <stdio.h>
 #include "sqlite3dart_core.h"
 
+bool isInvalidHandle(int64_t address) {
+	/*
+	  TODO This do not works correctly.
+
+	int64_t address32 = (int32_t)address;
+	return address32 < 1;
+	*/
+	return false;
+}
+
 Dart_Handle handleError(Dart_Handle handle) {
 	if (Dart_IsError(handle)) {
 		Dart_PropagateError(handle);
@@ -27,7 +37,7 @@ sqlite3* getSqliteHandle(Dart_NativeArguments arguments) {
 	return (sqlite3*)address;
 }
 
-const cstring getCString(Dart_NativeArguments arguments, int index) {
+const cstring get_cstring(Dart_NativeArguments arguments, int index) {
 	Dart_Handle stringHandle = handleError(Dart_GetNativeArgument(arguments, index));
 	const cstring str;
 	handleError(Dart_StringToCString(stringHandle, &str));
@@ -84,3 +94,17 @@ DynamicPointer* del_dynp(DynamicPointer *dynpointer) {
 	return dynpointer;
 }
 
+/// Get the number that represents the addres of SQLite3 database handle from the message (arguments sent from Dart program), 
+/// and convert it to native handle. The parameter Index specificies the index of the number in the array of arguments.
+/// Returns false if the number or the extracted handle is invalid. Else, the handle is written on db parameter.
+bool getDb(Dart_CObject* message, sqlite3** db) {
+	Dart_CObject* param = message->value.as_array.values[0];
+
+	param = message->value.as_array.values[INDEX_PARAM_DB_HANDLE];
+	int64_t address = param->value.as_int64;
+	if (isInvalidHandle(address)) {
+		return false;
+	}
+	*db = (sqlite3*) address;
+	return true;
+}

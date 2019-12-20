@@ -7,6 +7,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
+import 'dart:typed_data';
 
 //import 'repository_core.dart';
 import 'package:sqlite3dart/sqlite3dart.dart';
@@ -14,6 +15,8 @@ import 'SqliteRow.dart';
 
 import 'SqliteException.dart';
 import 'sqlite3_core.dart';
+
+/// http://zetcode.com/db/sqlitec/
 
 ///
 /// TODO
@@ -297,6 +300,31 @@ Future<void> sqlite3_bind_text(int statement, int index, String value) {
 ///
 /// TODO
 ///
+Future<void> sqlite3_bind_blob(int statement, int index, Uint8List value, [int size]) {
+  var completer = new Completer<int>();
+  var replyPort = new RawReceivePort();
+  var args = new List();
+  args.insert(0, replyPort.sendPort);
+  args.insert(1, 'sqlite3_bind_blob_wrapper');
+  args.insert(2, statement);
+  args.insert(3, index);
+  args.insert(4, value);
+  args.insert(5, size ?? value.length);
+  get_receive_port().send(args);
+  replyPort.handler = (result) {
+    replyPort.close();
+    if( result is String ) {
+      completeIfException(completer, result);
+    }
+    else
+      completer.complete(result);
+  };
+  return completer.future;
+}
+
+///
+/// TODO
+///
 Future<String> sqlite3_column_text(int statement, int index) {
   var completer = new Completer<String>();
   var replyPort = new RawReceivePort();
@@ -305,6 +333,24 @@ Future<String> sqlite3_column_text(int statement, int index) {
   args.insert(1, 'sqlite3_column_text_wrapper');
   args.insert(2, statement);
   args.insert(3, index);
+  get_receive_port().send(args);
+  replyPort.handler = (result) {
+    replyPort.close();
+    completer.complete(result);
+  };
+  return completer.future;
+}
+
+///
+/// TODO
+///
+Future<int> sqlite3_last_insert_rowid(int statement) {
+  var completer = new Completer<int>();
+  var replyPort = new RawReceivePort();
+  var args = new List();
+  args.insert(0, replyPort.sendPort);
+  args.insert(1, 'sqlite3_last_insert_rowid_wrapper');
+  args.insert(2, statement);
   get_receive_port().send(args);
   replyPort.handler = (result) {
     replyPort.close();
