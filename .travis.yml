@@ -11,7 +11,6 @@ env:
     - DART_SDK: ${TRAVIS_HOME}/dart-sdk
     
 before_install:
-- brew install gcc && CC=gcc-9.2.0_2
 - pwd
 - ls -l
 - mkdir -p ${TRAVIS_HOME}/Downloads/
