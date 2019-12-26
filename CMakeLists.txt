@@ -14,6 +14,9 @@ cmake_minimum_required (VERSION 3.10.2)
 project(sqlite3dart_extension)
 
 set(CMAKE_C_FLAGS "-v")
+IF(APPLE)
+	set(CMAKE_SHARED_LINKER_FLAGS "-undefined dynamic_lookup")
+ENDIF()
 
 # It is necessary to specify the environment variable to instalation path of Dart SDK.
 if(NOT DEFINED ENV{DART_SDK})
@@ -43,9 +46,10 @@ ELSE()
 ENDIF()
 message ("°° Dart ${dart_architecture}, installed on $ENV{DART_SDK}")
 
+add_compile_definitions(DART_SHARED_LIB=1)
+
 IF(WIN32)
 	FILE(GLOB SOURCES src/windows/*.c)
-	add_compile_definitions(DART_SHARED_LIB)
 	set(DART_LIB dart.lib)
 # poderia usar assim: set(DART_LIB_PATH $ENV{DART_SDK}/bin/dart.lib)
 # poderia usar assim: message(${DART_LIB_PATH})
