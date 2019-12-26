@@ -1,0 +1,5 @@
+matrix:
+  include:
+    - os: osx
+  install: 
+    - cmake get-deps
