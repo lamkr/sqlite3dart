@@ -13,6 +13,8 @@ cmake_minimum_required (VERSION 3.10.2)
 
 project(sqlite3dart_extension)
 
+set(CMAKE_C_FLAGS "-v")
+
 # It is necessary to specify the environment variable to instalation path of Dart SDK.
 if(NOT DEFINED ENV{DART_SDK})
 	message(FATAL_ERROR "°° Please, set environment variable DART_SDK to instalation path of Dart SDK.")
