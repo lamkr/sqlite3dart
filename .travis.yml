@@ -5,15 +5,16 @@ compiler:
   - clang
 
 env:
-  - DART_SDK_FILENAME: dartsdk-macos-x64-release.zip
-  - DART_SDK_CHANNEL: stable
-  - DART_SDK_VERSION: 2.7.0
-  - DART_SDK: ${TRAVIS_HOME}/dart-sdk
+  global:
+    - DART_SDK_FILENAME: dartsdk-macos-x64-release.zip
+    - DART_SDK_CHANNEL: stable
+    - DART_SDK_VERSION: 2.7.0
+    - DART_SDK: ${TRAVIS_HOME}/dart-sdk
 
 before_install:
   - pwd
   - ls -l
-  - mkdir ${TRAVIS_HOME}/Downloads/
+  - mkdir -p ${TRAVIS_HOME}/Downloads/
   - curl --connect-timeout 15 --retry 5 -o ${TRAVIS_HOME}/Downloads/${DART_SDK_FILENAME} -O https://storage.googleapis.com/dart-archive/channels/${DART_SDK_CHANNEL}/release/${DART_SDK_VERSION}/sdk/${DART_SDK_FILENAME}
   - unzip ${TRAVIS_HOME}/Downloads/${DART_SDK_FILENAME} -d ${TRAVIS_HOME}/
   - export PATH=$PATH:${DART_SDK}/bin
