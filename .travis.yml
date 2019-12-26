@@ -20,9 +20,6 @@ before_install:
   - export PATH=$PATH:${DART_SDK}/bin
   - dart --version
 
-install: 
-  - cmake get-deps
-
 before_script:
   - mkdir build
   - cd build
