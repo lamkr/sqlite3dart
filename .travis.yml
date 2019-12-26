@@ -1,17 +1,17 @@
-os: osx
-language: c
-compiler:
-  - gcc
-  - clang
+  os: osx
+  language: c
+  compiler:
+    - gcc
 
-env:
-  global:
-    - DART_SDK_FILENAME: dartsdk-macos-x64-release.zip
-    - DART_SDK_CHANNEL: stable
-    - DART_SDK_VERSION: 2.7.0
-    - DART_SDK: ${TRAVIS_HOME}/dart-sdk
-
-before_install:
+  env:
+    global:
+      - DART_SDK_FILENAME: dartsdk-macos-x64-release.zip
+      - DART_SDK_CHANNEL: stable
+      - DART_SDK_VERSION: 2.7.0
+      - DART_SDK: ${TRAVIS_HOME}/dart-sdk
+      
+  before_install:
+  - brew install gcc && CC=gcc-9.2
   - pwd
   - ls -l
   - mkdir -p ${TRAVIS_HOME}/Downloads/
@@ -20,10 +20,10 @@ before_install:
   - export PATH=$PATH:${DART_SDK}/bin
   - dart --version
 
-before_script:
-  - mkdir build
-  - cd build
-  - cmake -S ..
-  
-script: make && make test
+  before_script:
+    - mkdir build
+    - cd build
+    - cmake -S ..
+    
+  script: make && make test
 
