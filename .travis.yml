@@ -1,29 +1,29 @@
-  os: osx
-  language: c
-  compiler:
-    - gcc
+os: osx
+language: c
+compiler:
+  - gcc
 
-  env:
-    global:
-      - DART_SDK_FILENAME: dartsdk-macos-x64-release.zip
-      - DART_SDK_CHANNEL: stable
-      - DART_SDK_VERSION: 2.7.0
-      - DART_SDK: ${TRAVIS_HOME}/dart-sdk
-      
-  before_install:
-  - brew install gcc && CC=gcc-9.2
-  - pwd
-  - ls -l
-  - mkdir -p ${TRAVIS_HOME}/Downloads/
-  - curl --connect-timeout 15 --retry 5 -o ${TRAVIS_HOME}/Downloads/${DART_SDK_FILENAME} -O https://storage.googleapis.com/dart-archive/channels/${DART_SDK_CHANNEL}/release/${DART_SDK_VERSION}/sdk/${DART_SDK_FILENAME}
-  - unzip ${TRAVIS_HOME}/Downloads/${DART_SDK_FILENAME} -d ${TRAVIS_HOME}/
-  - export PATH=$PATH:${DART_SDK}/bin
-  - dart --version
-
-  before_script:
-    - mkdir build
-    - cd build
-    - cmake -S ..
+env:
+  global:
+    - DART_SDK_FILENAME: dartsdk-macos-x64-release.zip
+    - DART_SDK_CHANNEL: stable
+    - DART_SDK_VERSION: 2.7.0
+    - DART_SDK: ${TRAVIS_HOME}/dart-sdk
     
-  script: make && make test
+before_install:
+- brew install gcc && CC=gcc-9.2.0_2
+- pwd
+- ls -l
+- mkdir -p ${TRAVIS_HOME}/Downloads/
+- curl --connect-timeout 15 --retry 5 -o ${TRAVIS_HOME}/Downloads/${DART_SDK_FILENAME} -O https://storage.googleapis.com/dart-archive/channels/${DART_SDK_CHANNEL}/release/${DART_SDK_VERSION}/sdk/${DART_SDK_FILENAME}
+- unzip ${TRAVIS_HOME}/Downloads/${DART_SDK_FILENAME} -d ${TRAVIS_HOME}/
+- export PATH=$PATH:${DART_SDK}/bin
+- dart --version
+
+before_script:
+  - mkdir build
+  - cd build
+  - cmake -S ..
+  
+script: make && make test
 
