@@ -35,7 +35,7 @@ void mountException(Dart_CObject* result, const cstring message) {
 }
 
 void sqlite3_libversion_wrapper(Dart_CObject* message, Dart_CObject* result) {
-	const unsigned char* value = sqlite3_libversion();
+	const char* value = sqlite3_libversion();
 	result->type = Dart_CObject_kString;
 	result->value.as_string = (char*)value;
 }
@@ -57,7 +57,7 @@ void sqlite3_open_wrapper(Dart_CObject* message, Dart_CObject* result) {
 
 void sqlite3_close_wrapper(Dart_CObject* message, Dart_CObject* result) {
 	sqlite3* db;
-	if (!getDb(message, 2, &db)) {
+	if (!getDb(message, &db)) {
 		mountException(result, ERR_INVALID_HANDLE);
 		return;
 	}
@@ -134,7 +134,7 @@ void sqlite3_exec_wrapper(Dart_CObject* message, Dart_CObject* result) {
 	Dart_Port replyPortId = paramReplyPortId->value.as_send_port.id;
 
 	sqlite3* db;
-	if (!getDb(message, 2, &db)) {
+	if (!getDb(message, &db)) {
 		mountException(result, ERR_INVALID_HANDLE);
 		return;
 	}
@@ -174,19 +174,18 @@ void sqlite3_table_exists(Dart_CObject* message, Dart_CObject* result) {
 	Dart_Port replyPortId = paramReplyPortId->value.as_send_port.id;
 
 	sqlite3* db;
-	if (!getDb(message, 2, &db)) {
+	if (!getDb(message, &db)) {
 		mountException(result, ERR_INVALID_HANDLE);
 		return;
 	}
 
-	cstring tableName = get_cstring(message, 3);
-
 	Dart_CObject* param3 = message->value.as_array.values[3];
+	const cstring tableName = (const cstring)param3->value.as_string;
 
 	snprintf(_dynpointers[0].pointer, _dynpointers[0].size, "select name from sqlite_master where type = 'table'");
 
 	cstring zErrMsg = NULL;
-	CallbackParameter parameter = { replyPortId, tableName };
+	CallbackParameter parameter = { replyPortId, (pointer) tableName };
 	int error = sqlite3_exec(db, _dynpointers[0].pointer, sqlite3_table_exists_callback, &parameter, &zErrMsg);
 	if (error == SQLITE_OK) {
 		result->type = Dart_CObject_kNull;
@@ -406,10 +405,39 @@ void sqlite3_bind_blob_wrapper(Dart_CObject* message, Dart_CObject* result) {
 	uint8_t* value = message->value.as_typed_data.values;
 
 	param = message->value.as_array.values[5];
+	int32_t size = param->value.as_int32;
+
+	// The SQLITE_STATIC parameter means that the pointer to the content information is static and does not need to be freed.
+	int32_t error = sqlite3_bind_blob(statementHandle, index, value, size, SQLITE_STATIC);
+
+	if (error == SQLITE_OK) {
+		result->type = Dart_CObject_kNull;
+	}
+	else {
+		//mountException(result, (const cstring)sqlite3_errmsg(db));
+		mountException(result, (const cstring)sqlite3_errstr(error));
+	}
+}
+
+void sqlite3_bind_blob64_wrapper(Dart_CObject* message, Dart_CObject* result) {
+	Dart_CObject* param = message->value.as_array.values[0];
+	Dart_Port replyPortId = param->value.as_send_port.id;
+
+	param = message->value.as_array.values[2];
+	int64_t statement = param->value.as_int64;
+	sqlite3_stmt* statementHandle = (sqlite3_stmt*)statement;
+
+	param = message->value.as_array.values[3];
+	int32_t index = param->value.as_int32;
+
+	param = message->value.as_array.values[4];
+	uint8_t* value = message->value.as_typed_data.values;
+
+	param = message->value.as_array.values[5];
 	int64_t size = param->value.as_int64;
 
 	// The SQLITE_STATIC parameter means that the pointer to the content information is static and does not need to be freed.
-	int64_t error = sqlite3_bind_blob(statementHandle, index, value, size, SQLITE_STATIC);
+	int32_t error = sqlite3_bind_blob64(statementHandle, index, value, size, SQLITE_STATIC);
 
 	if (error == SQLITE_OK) {
 		result->type = Dart_CObject_kNull;
@@ -472,7 +500,7 @@ void sqlite3_commit_transaction(Dart_CObject* message, Dart_CObject* result) {
 	Dart_Port replyPortId = param->value.as_send_port.id;
 
 	sqlite3* db;
-	if (!getDb(message, 2, &db)) {
+	if (!getDb(message, &db)) {
 		mountException(result, ERR_INVALID_HANDLE);
 		return;
 	}
@@ -519,7 +547,7 @@ void sqlite3_last_insert_rowid_wrapper(Dart_CObject* message, Dart_CObject* resu
 	Dart_Port replyPortId = param->value.as_send_port.id;
 
 	sqlite3* db;
-	if (!getDb(message, 2, &db)) {
+	if (!getDb(message, &db)) {
 		mountException(result, ERR_INVALID_HANDLE);
 		return;
 	}
@@ -543,6 +571,7 @@ const WrapperFunction wrappersFunctionsList[] = {
 	{ "sqlite3_bind_double_wrapper", sqlite3_bind_double_wrapper },
 	{ "sqlite3_bind_text_wrapper", sqlite3_bind_text_wrapper },
 	{ "sqlite3_bind_blob_wrapper", sqlite3_bind_blob_wrapper },
+	{ "sqlite3_bind_blob64_wrapper", sqlite3_bind_blob64_wrapper },
 	{ "sqlite3_column_text_wrapper", sqlite3_column_text_wrapper },
 	{ "sqlite3_begin_transaction", sqlite3_begin_transaction },
 	{ "sqlite3_commit_transaction", sqlite3_commit_transaction },

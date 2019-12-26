@@ -55,7 +55,7 @@ sqlite3* getSqliteHandle(Dart_NativeArguments arguments);
 
 const cstring get_cstring(Dart_NativeArguments arguments, int index);
 
-bool getDb(Dart_CObject* message, int index, sqlite3** db);
+bool getDb(Dart_CObject* message, sqlite3** db);
 
 int Sqlite3Callback(pointer a_param, int argc, cstring* argv, cstring* column);
 
