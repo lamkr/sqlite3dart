@@ -1,5 +1,14 @@
-matrix:
-  include:
-    - os: osx
-  install: 
-    - cmake get-deps
+os: osx
+language: c
+compiler:
+  - gcc
+  - clang
+#install: 
+#  - cmake get-deps
+before_script:
+  - mkdir build
+  - cd build
+  - cmake -S ..
+  
+script: make && make test
+
