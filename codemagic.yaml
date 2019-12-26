@@ -1,0 +1,38 @@
+# Automatically generated on 2019-12-26 UTC from https://codemagic.io/app/5e0486ffa4fb358b52d174a7/settings
+# Note that this configuration is not an exact match to UI settings. Review and adjust as necessary.
+
+workflows:
+  default-workflow:
+    name: Compile and test sqlite3dart library
+    environment:
+      vars:
+        PUBLIC_ENV_VAR: value here
+      flutter: stable
+    cache:
+      cache_paths:
+        - $FCI_BUILD_DIR/build
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: '*'
+          include: true
+          source: true
+    scripts:
+      - |
+        # Install CMake
+        ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null 2> /dev/null
+        brew install cmake
+      - |
+        # set up debug keystore
+      - |
+        # set up local properties
+        echo "flutter.sdk=$HOME/programs/flutter" > "$FCI_BUILD_DIR/android/local.properties"
+      - flutter packages pub get
+      - flutter config --enable-web
+    artifacts:
+      - build/**/outputs/**/*.aab
+    publishing:
+      email:
+        recipients:
+          - flutuate.io@gmail.com

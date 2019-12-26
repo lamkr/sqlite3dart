@@ -1,10 +1,12 @@
 .vs/
 .idea/
+sqlite3dart/.idea/libraries/Dart_Packages.xml
+sqlite3dart/.idea/libraries/Dart_SDK.xml
 sqlite3dart/.idea/
-sqlite3dart/.idea/libraries/
 sqlite3dart/.dart_tool/
 sqlite3dart/.packages
 sqlite3dart/example/*.dll
+sqlite3dart/example/*.db
 sqlite3dart/example/*.so
 sqlite3dart/pubspec.lock
 build/
@@ -16,6 +18,7 @@ x64/
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+*.iml
 **/*.iml
 CMakeCache.txt
 CMakeScripts
