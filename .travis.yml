@@ -11,14 +11,8 @@ compiler:
     # - DART_SDK: ${TRAVIS_HOME}/dart-sdk
     
 install: 
-  - echo ${HOME}
-  - ls -l ${HOME}
-  - echo ${TRAVIS_HOME}
-  - ls -l ${TRAVIS_HOME}
-  - echo ${TRAVIS_BUILD_DIR}
-  - ls -l ${TRAVIS_BUILD_DIR}
-  - chmod -R ugo+x scripts/
-  - bash ${TRAVIS_BUILD_DIR}/scripts/downloadDart.sh
+  - chmod -R ugo+x ${TRAVIS_BUILD_DIR}/scripts/
+  - ${TRAVIS_BUILD_DIR}/scripts/downloadDart.sh
 # - mkdir -p ${TRAVIS_HOME}/Downloads/
 # - curl --connect-timeout 15 --retry 5 -o ${TRAVIS_HOME}/Downloads/${DART_SDK_FILENAME} -O https://storage.googleapis.com/dart-archive/channels/${DART_SDK_CHANNEL}/release/${DART_SDK_VERSION}/sdk/${DART_SDK_FILENAME}
 # - unzip ${TRAVIS_HOME}/Downloads/${DART_SDK_FILENAME} -d ${TRAVIS_HOME}/

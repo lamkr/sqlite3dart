@@ -7,6 +7,9 @@ export DART_SDK_VERSION="2.7.0"
 export DART_SDK="$HOME/dart-sdk"
 export DART_SDK_URL="https://storage.googleapis.com/dart-archive/channels/${DART_SDK_CHANNEL}/release/${DART_SDK_VERSION}/sdk/${DART_SDK_FILENAME}"
 
+echo "$DART_SDK_URL"
+echo "${DART_SDK_URL}"
+
 mkdir -p ${HOME}/Downloads/
 echo "--connect-timeout 15 --retry 5 -o ${HOME}/Downloads/${DART_SDK_FILENAME} -O https://storage.googleapis.com/dart-archive/channels/${DART_SDK_CHANNEL}/release/${DART_SDK_VERSION}/sdk/${DART_SDK_FILENAME}"
 curl --connect-timeout 15 --retry 5 -o "${HOME}/Downloads/${DART_SDK_FILENAME}" -O ${URL%$'\r'}
