@@ -6,6 +6,7 @@ export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${TRAVIS_BUILD_DIR}/sqlite3dart/exampl
 cd ${TRAVIS_BUILD_DIR}/sqlite3dart/example
 pwd
 ls -l
+pub get
 dart -v ./sqlite3dart_test.dart
 #if [ $? -ne 0 ]
 #then 
