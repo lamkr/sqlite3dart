@@ -11,8 +11,12 @@ compiler:
     # - DART_SDK: ${TRAVIS_HOME}/dart-sdk
     
 install: 
+  - echo ${HOME}
+  - ls -l ${HOME}
   - echo ${TRAVIS_HOME}
   - ls -l ${TRAVIS_HOME}
+  - echo ${TRAVIS_BUILD_DIR}
+  - ls -l ${TRAVIS_BUILD_DIR}
   - chmod -R ugo+x scripts/
   - bash ${TRAVIS_BUILD_DIR}/scripts/downloadDart.sh
 # - mkdir -p ${TRAVIS_HOME}/Downloads/
