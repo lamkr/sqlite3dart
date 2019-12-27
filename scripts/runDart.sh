@@ -8,9 +8,3 @@ pwd
 ls -l
 pub get
 dart -v ./sqlite3dart_test.dart
-#if [ $? -ne 0 ]
-#then 
-#	echo "# Error running dart tests"
-#	exit 1
-#fi
-exit $?

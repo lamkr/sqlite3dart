@@ -8,6 +8,6 @@ copyright: 2019 (c) Luciano Rodrigues (Brodi) <lamkrodrigues@gmail.com>
 
 dependencies:
     sqlite3dart:
-        version: ^0.0.1
+        version: ^1.0.0
         path: ../
         
