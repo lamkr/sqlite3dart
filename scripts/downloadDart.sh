@@ -1,5 +1,4 @@
 #!/bin/bash
-
 export DART_SDK_FILENAME=dartsdk-macos-x64-release.zip
 export DART_SDK_CHANNEL=stable
 export DART_SDK_VERSION=2.7.0
