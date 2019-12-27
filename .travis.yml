@@ -5,8 +5,10 @@ compiler:
 
 env:
   global:
-    - DART_SDK: ${HOME}/dart-sdk
+    - DART_SDK=${HOME}/dart-sdk
     - PATH=${PATH}:${DART_SDK}/bin
+    - SQLITE3DART_LIBRARY_PATH=${TRAVIS_BUILD_DIR}/build
+    - SQLITE3DART_LIBRARY_NAME=libsqlite3dart_extension
     
 install: 
   - chmod -R ugo+x ${TRAVIS_BUILD_DIR}/scripts/
