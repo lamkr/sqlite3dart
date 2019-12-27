@@ -21,8 +21,20 @@ before_install:
 
 before_script:
   - mkdir build
-  - cd build
-  - cmake -S ..
+  - pushd build
+  - cmake -S ..  
   
-script: make && make test
-
+script: 
+  - make #make && make test #TODO: Add native tests
+  - popd
+  - | # Run Dart tests
+    yes | cp -rf ./build/libsqlite3dart_extension.so ./sqlite3dart/example
+    pushd $(pwd)/sqlite3dart/example
+    export LD_LIBRARY_PATH=$(pwd):$LD_LIBRARY_PATH    
+    dart -v sqlite3dart_test.dart	
+    if [ $? -ne 0 ];
+    then 
+      echo "# Error running dart tests"
+    fi
+    popd
+    
