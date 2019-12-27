@@ -10,7 +10,7 @@ compiler:
     # - DART_SDK_VERSION: 2.7.0
     # - DART_SDK: ${TRAVIS_HOME}/dart-sdk
     
-after_install: 
+install: 
   - chmod -R ugo+x scripts/
   - ${TRAVIS_BUILD_DIR}/scripts/downloadDart.sh
 # - mkdir -p ${TRAVIS_HOME}/Downloads/
