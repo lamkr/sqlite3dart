@@ -1,10 +1,9 @@
 #!/bin/bash
 
 ## Run Dart tests
-pushd ${TRAVIS_BUILD_DIR}
-yes | cp -rf ./build/libsqlite3dart_extension.so ./sqlite3dart/example
-pushd $(pwd)/sqlite3dart/example
-export LD_LIBRARY_PATH=$(pwd):$LD_LIBRARY_PATH
+yes | cp -rf ${TRAVIS_BUILD_DIR}/build/libsqlite3dart_extension.so ${TRAVIS_BUILD_DIR}/sqlite3dart/example
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${TRAVIS_BUILD_DIR}/sqlite3dart/example
+pushd ${TRAVIS_BUILD_DIR}/sqlite3dart/example
 dart -v sqlite3dart_test.dart
 if [ $? -ne 0 ];
 then 
