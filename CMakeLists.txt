@@ -13,7 +13,7 @@ cmake_minimum_required (VERSION 3.10.2)
 
 project(sqlite3dart_extension)
 
-set(CMAKE_C_FLAGS "-v")
+#set(CMAKE_C_FLAGS "-v") #-v=Verbosity
 IF(APPLE)
 	set(CMAKE_SHARED_LINKER_FLAGS "-undefined dynamic_lookup")
 ENDIF()
