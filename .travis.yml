@@ -6,7 +6,7 @@ compiler:
 env:
   global:
     - DART_SDK: ${HOME}/dart-sdk
-    - PATH=${PATH}:${DART_SDK}
+    - PATH=${PATH}:${DART_SDK}/bin
     
 install: 
   - chmod -R ugo+x ${TRAVIS_BUILD_DIR}/scripts/
