@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## Run Dart tests
-pushd ${HOME}
+pushd ${TRAVIS_BUILD_DIR}
 yes | cp -rf ./build/libsqlite3dart_extension.so ./sqlite3dart/example
 pushd $(pwd)/sqlite3dart/example
 export LD_LIBRARY_PATH=$(pwd):$LD_LIBRARY_PATH
