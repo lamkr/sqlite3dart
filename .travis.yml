@@ -16,11 +16,10 @@ install:
 
 before_script:
   - mkdir build
-  - pushd build
+  - cd build
   - cmake -S ..  
   
 script: 
   - make #make && make test #TODO: Add native tests
-  - popd
     
 after_success: ${TRAVIS_BUILD_DIR}/scripts/runDart.sh
