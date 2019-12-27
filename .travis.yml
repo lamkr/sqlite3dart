@@ -3,21 +3,19 @@ language: c
 compiler:
   - gcc
 
-env:
-  global:
-    - DART_SDK_FILENAME: dartsdk-macos-x64-release.zip
-    - DART_SDK_CHANNEL: stable
-    - DART_SDK_VERSION: 2.7.0
-    - DART_SDK: ${TRAVIS_HOME}/dart-sdk
+# env:
+  # global:
+    # - DART_SDK_FILENAME: dartsdk-macos-x64-release.zip
+    # - DART_SDK_CHANNEL: stable
+    # - DART_SDK_VERSION: 2.7.0
+    # - DART_SDK: ${TRAVIS_HOME}/dart-sdk
     
-before_install:
-- pwd
-- ls -l
-- mkdir -p ${TRAVIS_HOME}/Downloads/
-- curl --connect-timeout 15 --retry 5 -o ${TRAVIS_HOME}/Downloads/${DART_SDK_FILENAME} -O https://storage.googleapis.com/dart-archive/channels/${DART_SDK_CHANNEL}/release/${DART_SDK_VERSION}/sdk/${DART_SDK_FILENAME}
-- unzip ${TRAVIS_HOME}/Downloads/${DART_SDK_FILENAME} -d ${TRAVIS_HOME}/
-- export PATH=$PATH:${DART_SDK}/bin
-- dart --version
+before_install: ${HOME}/scripts/downloadDart.sh
+# - mkdir -p ${TRAVIS_HOME}/Downloads/
+# - curl --connect-timeout 15 --retry 5 -o ${TRAVIS_HOME}/Downloads/${DART_SDK_FILENAME} -O https://storage.googleapis.com/dart-archive/channels/${DART_SDK_CHANNEL}/release/${DART_SDK_VERSION}/sdk/${DART_SDK_FILENAME}
+# - unzip ${TRAVIS_HOME}/Downloads/${DART_SDK_FILENAME} -d ${TRAVIS_HOME}/
+# - export PATH=$PATH:${DART_SDK}/bin
+# - dart --version
 
 before_script:
   - mkdir build
@@ -27,14 +25,5 @@ before_script:
 script: 
   - make #make && make test #TODO: Add native tests
   - popd
-  - | # Run Dart tests
-    yes | cp -rf ./build/libsqlite3dart_extension.so ./sqlite3dart/example
-    pushd $(pwd)/sqlite3dart/example
-    export LD_LIBRARY_PATH=$(pwd):$LD_LIBRARY_PATH    
-    dart -v sqlite3dart_test.dart	
-    if [ $? -ne 0 ];
-    then 
-      echo "# Error running dart tests"
-    fi
-    popd
     
+after_success: ${HOME}/scripts/runDart.sh
