@@ -12,6 +12,7 @@ compiler:
     
 install: 
   - chmod -R ugo+x ${TRAVIS_BUILD_DIR}/scripts/
+  - ls -l ${TRAVIS_BUILD_DIR}/scripts/
   - ${TRAVIS_BUILD_DIR}/scripts/downloadDart.sh
 # - mkdir -p ${TRAVIS_HOME}/Downloads/
 # - curl --connect-timeout 15 --retry 5 -o ${TRAVIS_HOME}/Downloads/${DART_SDK_FILENAME} -O https://storage.googleapis.com/dart-archive/channels/${DART_SDK_CHANNEL}/release/${DART_SDK_VERSION}/sdk/${DART_SDK_FILENAME}
