@@ -14,7 +14,6 @@
 @echo off
 set arg1=%1
 
-
 :: https://stackoverflow.com/questions/44638166/how-to-remove-last-segment-in-filepath-in-command-prompt
 :: Find Dart program on environment variable PATH
 if exist %DART_SDK% goto setVSVars
@@ -42,12 +41,10 @@ if "%~1"=="dart" goto RUN_DART
 echo ERRORLEVEL=%ERRORLEVEL% cmake
 if %ERRORLEVEL% neq 0 goto erro
 
-rem cd build 
 %VSPATH%\msbuild .\build\sqlite3dart_extension.sln /p:Configuration=Release /p:Platform=x64
 echo ERRORLEVEL=%ERRORLEVEL% %VSPATH%\msbuild .\build\sqlite3dart_extension.sln /p:Configuration=Release /p:Platform=x64
 if %ERRORLEVEL% neq 0 goto erro
 
-rem cd ..
 copy /Y build\Release\sqlite3dart_extension.dll .\sqlite3dart\example
 :RUN_DART
 	cd .\sqlite3dart\example
