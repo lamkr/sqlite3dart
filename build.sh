@@ -40,13 +40,13 @@ function runDart ()
 	exit;
 }
 
-if [ "$1" = "rm" ]
+if [ "$1" = "dart" ]
 then 
-	rm -rf ./build;
-elif [ "$1" = "dart" ]
-then
 	runDart
 	exit;
+else
+then
+	rm -rf ./build;
 fi
 
 cmake -S . -Bbuild 
