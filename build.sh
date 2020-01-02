@@ -14,7 +14,7 @@
 ## Find Dart program on environment variable PATH.
 if [ -z "$DART_SDK" ]
 then
-	export DART_SDK = $(dirname $(dirname `which dart`))
+	export DART_SDK=$(dirname $(dirname `which dart`))
 fi 
 
 ## Check if CMake, C/C++ compilers are installed.
@@ -45,7 +45,6 @@ then
 	runDart
 	exit;
 else
-then
 	rm -rf ./build;
 fi
 
